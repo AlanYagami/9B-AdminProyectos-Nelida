@@ -6,6 +6,8 @@ import Login from './../auth/Login';
 import Register from './../auth/Register';
 import ForgotPassword from '../auth/ForgotPassword';
 import EventLandingPage from './../pages/LandingPage';
+import Error404Page from './../pages/Error404Page';
+import Error500Page from './../pages/Error500Page';
 
 function Router() {
   return (
@@ -23,6 +25,11 @@ function Router() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         
         {/* Catch-all route for 404 */}
+        <Route path="*" element={<Error404Page />} />
+
+        {/* Error 500 */}
+        <Route path="/500" element={<Error500Page />} />
+        
       </Routes>
     </BrowserRouter>
   );
