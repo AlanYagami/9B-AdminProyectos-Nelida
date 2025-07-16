@@ -47,22 +47,9 @@ function Login() {
     fontSize: '0.9rem'
   };
 
-  const logoStyle = {
-    width: '50px',
-    height: '50px',
-    background: 'linear-gradient(45deg, #667eea, #764ba2)',
-    borderRadius: '10px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    margin: '0 auto 1.5rem auto',
-    fontSize: '24px',
-    fontWeight: 'bold'
-  };
-
   const navigate = useNavigate();
 
-  const goToAbout = () => {
+  const goToLanding = () => {
     navigate('/landing');
   };
 
@@ -78,54 +65,23 @@ function Login() {
             <div className="text-white">
               <h1 className="display-1 fw-bold mb-0">SICALE</h1>
               <div className="mt-4">
-                <svg width="300" height="200" viewBox="0 0 300 200" fill="none">
-                  <path d="M50 50h200v100H50z" fill="none" stroke="white" strokeWidth="3"/>
-                  <path d="M50 50l20-20h200l20 20v100l-20 20H70l-20-20z" fill="none" stroke="white" strokeWidth="3"/>
-                  <rect x="70" y="70" width="30" height="20" fill="white"/>
-                  <circle cx="120" cy="80" r="5" fill="white"/>
-                  <circle cx="140" cy="80" r="5" fill="white"/>
-                  <circle cx="160" cy="80" r="5" fill="white"/>
-                  <circle cx="180" cy="80" r="5" fill="white"/>
-                  <circle cx="200" cy="80" r="5" fill="white"/>
-                  <circle cx="80" cy="100" r="5" fill="white"/>
-                  <circle cx="100" cy="100" r="5" fill="white"/>
-                  <circle cx="120" cy="100" r="5" fill="white"/>
-                  <circle cx="140" cy="100" r="5" fill="white"/>
-                  <circle cx="160" cy="100" r="5" fill="white"/>
-                  <circle cx="180" cy="100" r="5" fill="white"/>
-                  <circle cx="200" cy="100" r="5" fill="white"/>
-                  <circle cx="80" cy="120" r="5" fill="white"/>
-                  <circle cx="100" cy="120" r="5" fill="white"/>
-                  <circle cx="120" cy="120" r="5" fill="white"/>
-                  <circle cx="140" cy="120" r="5" fill="white"/>
-                  <circle cx="160" cy="120" r="5" fill="white"/>
-                  <circle cx="180" cy="120" r="5" fill="white"/>
-                  <circle cx="200" cy="120" r="5" fill="white"/>
-                </svg>
+                <img 
+                  src="src\assets\img\calendario.png" 
+                  alt="Calendario" 
+                  className="img-fluid"
+                  style={{ maxWidth: '80%', height: 'auto' }}
+                />
               </div>
             </div>
           </div>
           <div className="col-md-6 d-flex align-items-center justify-content-center">
             <div style={cardStyle}>
-              <div style={logoStyle}>
-                <div style={{
-                  width: '25px',
-                  height: '25px',
-                  background: 'linear-gradient(45deg, #4facfe, #00f2fe)',
-                  borderRadius: '5px',
-                  position: 'relative'
-                }}>
-                  <div style={{
-                    position: 'absolute',
-                    top: '15px',
-                    left: '15px',
-                    width: '25px',
-                    height: '25px',
-                    background: 'linear-gradient(45deg, #764ba2, #667eea)',
-                    borderRadius: '5px'
-                  }}></div>
-                </div>
-              </div>
+              <img 
+                src="src\assets\img\logo.png"
+                alt="Logo"
+                className='img-fluid mb-4'
+              />
+              
               
               <div>
                 <div className="mb-3">
@@ -160,7 +116,7 @@ function Login() {
                   type="button" 
                   className="btn btn-primary w-100 mb-3"
                   style={buttonStyle}
-                    onClick={goToAbout}
+                    onClick={goToLanding}
                 >
                   Volver
                 </button>
