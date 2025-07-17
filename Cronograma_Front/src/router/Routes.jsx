@@ -8,26 +8,33 @@ import ForgotPassword from '../auth/ForgotPassword';
 import EventLandingPage from './../pages/LandingPage';
 import Error404Page from './../pages/Error404Page';
 import Error500Page from './../pages/Error500Page';
+import LoggedEvents from '../admin/LoggedEvents';
+import OrganizersList from '../admin/OrganizersList';
 
 function Router() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Publicas */}
+        <Route path="/" element={<EventLandingPage />} />
         <Route path="/home" element={<Home />} />
+        <Route path="/landing" element={<EventLandingPage />} />
 
         <Route path="/about" element={<About />} />
 
-        <Route path="/" element={<EventLandingPage />} />
-        <Route path="/landing" element={<EventLandingPage />} />
-
+        {/* Autentificación  */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        
-        {/* Catch-all route for 404 */}
-        <Route path="*" element={<Error404Page />} />
 
-        {/* Error 500 */}
+        {/* Admin */}
+        <Route path="/admin/logged-events" element={<LoggedEvents />} />
+        <Route path="/admin/organizers-list" element={<OrganizersList />} />
+
+        {/* Organizadores */}
+        
+        {/* Error */}
+        <Route path="*" element={<Error404Page />} />
         <Route path="/500" element={<Error500Page />} />
         
       </Routes>
