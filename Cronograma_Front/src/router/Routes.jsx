@@ -10,6 +10,8 @@ import Error404Page from './../pages/Error404Page';
 import Error500Page from './../pages/Error500Page';
 import LoggedEvents from '../admin/LoggedEvents';
 import OrganizersList from '../admin/OrganizersList';
+import EventsPage from '../organizer/EventsPage';
+import Calendar from '../organizer/Calendar';
 
 function Router() {
   return (
@@ -32,7 +34,11 @@ function Router() {
         <Route path="/admin/organizers-list" element={<OrganizersList />} />
 
         {/* Organizadores */}
-        
+        <Route path="/organizer/my-events" element={<EventsPage />} />
+        <Route path="/organizer/calendar" element={<Calendar />} />
+
+        {/* Usuario */}
+
         {/* Error */}
         <Route path="*" element={<Error404Page />} />
         <Route path="/500" element={<Error500Page />} />

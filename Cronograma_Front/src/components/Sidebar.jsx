@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 import { FaCalendarAlt, FaUsers, FaSignOutAlt, FaHome } from "react-icons/fa";
 
 // Roles: 'admin', 'organizador', 'usuario'
-const Sidebar = ({ onLogout, role = "admin", username = "Admin" }) => {
+const Sidebar = ({ onLogout, role = "organizador", username = "Admin" }) => {
   const menuOptions = {
     admin: [
       { path: "/admin/logged-events", label: "Eventos", icon: <FaCalendarAlt /> },
@@ -23,8 +23,12 @@ const Sidebar = ({ onLogout, role = "admin", username = "Admin" }) => {
     usuario: "btn-secondary",
   };
 
+  const buttonStyle = {
+    backgroundColor: "#764BA2",
+    color: "white",
+  };
+
   const options = menuOptions[role] || [];
-  const logoutClass = logoutButtonColors[role] || "btn-primary";
 
   return (
     <div
@@ -34,8 +38,8 @@ const Sidebar = ({ onLogout, role = "admin", username = "Admin" }) => {
       {/* Logo y nombre */}
       <div className="mb-4 text-center">
         <div
-          className="bg-primary rounded-circle p-3 mb-2 mx-auto"
-          style={{ width: "60px", height: "60px" }}
+          className="rounded-circle p-3 mb-2 mx-auto"
+          style={{ width: "60px", height: "60px", backgroundColor: "#764BA2", display: "flex", alignItems: "center", justifyContent: "center" }}
         >
           <span className="fw-bold fs-4">L</span>
         </div>
@@ -46,14 +50,22 @@ const Sidebar = ({ onLogout, role = "admin", username = "Admin" }) => {
       <ul className="nav nav-pills flex-column mb-auto">
         {options.map((item, idx) => (
           <li className="nav-item" key={idx}>
-            <NavLink to={item.path} className="nav-link text-white">
+            <NavLink
+              to={item.path}
+              className="nav-link text-white"
+              style={({ isActive }) => (isActive ? buttonStyle : undefined)}
+            >
               {item.icon} <span className="ms-2">{item.label}</span>
             </NavLink>
           </li>
         ))}
         {/* Home (todos) */}
         <li>
-          <NavLink to="/" className="nav-link text-white">
+          <NavLink
+            to="/"
+            className="nav-link text-white"
+            style={({ isActive }) => (isActive ? activeLinkStyle : undefined)}
+          >
             <FaHome className="me-2" />
             Home
           </NavLink>
@@ -62,7 +74,7 @@ const Sidebar = ({ onLogout, role = "admin", username = "Admin" }) => {
 
       {/* Boton de logout con color dinamico */}
       <div className="mt-auto">
-        <button className={`btn ${logoutClass} w-100`} onClick={onLogout}>
+        <button className={`btn w-100`} style={ buttonStyle } onClick={onLogout}>
           <FaSignOutAlt className="me-2" />
           Cerrar Sesión
         </button>
