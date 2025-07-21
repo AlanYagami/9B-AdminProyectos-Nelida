@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DataTable from "react-data-table-component";
 import Sidebar from '../components/Sidebar';
+import { Bold } from 'lucide-react';
 
 function OrganizersList() {
   const containerStyle = {
@@ -14,6 +15,24 @@ function OrganizersList() {
   const textStyle = {
     color: 'white',
     margin: '20px',
+  };
+
+  const buttonDeleteStyle = {
+    backgroundColor: '#fa6060ff',
+    color: 'white',
+    border: 'none',
+    padding: '5px 10px',
+    borderRadius: '5px',
+    cursor: 'pointer',
+  };
+
+   const buttonEditStyle = {
+    backgroundColor: '#e4a333ff',
+    color: 'white',
+    border: 'none',
+    padding: '5px 10px',
+    borderRadius: '5px',
+    cursor: 'pointer',
   };
 
   const inputStyle = {
@@ -33,11 +52,11 @@ function OrganizersList() {
       name: "Acciones",
         cell: (row) => (
         <div className="d-flex gap-2">
-            <button className="btn btn-warning btn-sm" onClick={() => onEdit(row)}>
+            <button className="btn-sm" style={buttonEditStyle} onClick={() => onEdit(row)}>
             ✏️ Editar
             </button>
-            <button className="btn btn-danger btn-sm" onClick={() => onDelete(row)}>
-            🗑️ Cancelar
+            <button className="btn-sm" style={buttonDeleteStyle} onClick={() => onDelete(row)}>
+            🗑️ Eliminar
             </button>
         </div>
         ),

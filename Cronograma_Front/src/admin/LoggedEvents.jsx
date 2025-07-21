@@ -16,6 +16,15 @@ function LoggedEvents() {
     margin: '20px',
   };
 
+  const buttonDeleteStyle = {
+    backgroundColor: '#fa6060ff',
+    color: 'white',
+    border: 'none',
+    padding: '5px 10px',
+    borderRadius: '5px',
+    cursor: 'pointer',
+  };
+
   const inputStyle = {
     backgroundColor: '#ffffffff',
     //color: 'white',
@@ -31,7 +40,7 @@ function LoggedEvents() {
     { name: "Fecha", selector: row => row.fecha },
     {
       name: "Acciones",
-      cell: () => <button className="btn btn-danger btn-sm">🗑️</button>,
+      cell: () => <button className="btn-sm" style={buttonDeleteStyle}>🗑️ Eliminar</button>,
     },
   ];
 

@@ -29,7 +29,7 @@ export default function Home() {
     <>
       {/* Navbar */}
       <Navbar bg="dark" variant="dark" expand="lg" className="px-3">
-        <Navbar.Brand href="#">SICALE</Navbar.Brand>
+        <Navbar.Brand href="/">SICALE</Navbar.Brand>
         <Nav className="ms-auto">
           <Button variant="outline-light" className="me-2" onClick={goToLogin}>Inicia Sesión</Button>
           <Button variant="primary" onClick={goToRegister}>Regístrate</Button>
