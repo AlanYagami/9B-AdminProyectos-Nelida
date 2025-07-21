@@ -27,4 +27,28 @@ public class Rol {
     @OneToMany(mappedBy = "rol", cascade = CascadeType.ALL)
     @JsonIgnore // Se ignora para evitar ciclos de referencia infinitos en JSON
     private List<Usuario> usuarios;
+
+    public Integer getIdRol() {
+        return idRol;
+    }
+
+    public void setIdRol(Integer idRol) {
+        this.idRol = idRol;
+    }
+
+    public String getRol() {
+        return rol;
+    }
+
+    public void setRol(String rol) {
+        this.rol = rol;
+    }
+
+    public List<Usuario> getUsuarios() {
+        return usuarios;
+    }
+
+    public void setUsuarios(List<Usuario> usuarios) {
+        this.usuarios = usuarios;
+    }
 }

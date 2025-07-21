@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/tipos-evento")
+@RequestMapping("api/tipos-evento")
 public class TipoEventoController {
 
     private final TipoEventoService tipoEventoService;
