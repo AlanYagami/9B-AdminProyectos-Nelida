@@ -39,15 +39,11 @@ public class UsuarioController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping
+    /*@PostMapping
     public ResponseEntity<Usuario> crear(@RequestBody Usuario usuario) {
-        System.out.println(usuario.getIdUsuario());
-        System.out.println(usuario.getNombre());
-        System.out.println(usuario.getRol().getIdRol());
-        System.out.println(usuario.getContra());
         Usuario nuevoUsuario = usuarioService.guardar(usuario);
         return new ResponseEntity<>(nuevoUsuario, HttpStatus.CREATED);
-    }
+    }*/
 
     @PutMapping("/{id}")
     public ResponseEntity<Usuario> actualizar(@PathVariable Integer id, @RequestBody Usuario usuario) {
