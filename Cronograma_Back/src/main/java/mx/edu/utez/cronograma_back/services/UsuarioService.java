@@ -29,13 +29,9 @@ public class UsuarioService {
         return usuarioRepository.findByCorreo(correo);
     }
 
-    public Usuario guardar(Usuario usuario) {
-        System.out.println(usuario.getIdUsuario());
-        System.out.println(usuario.getNombre());
-        System.out.println(usuario.getRol());
-        System.out.println(usuario.getContra());
+    /*public Usuario guardar(Usuario usuario) {
         return usuarioRepository.save(usuario);
-    }
+    }*/
 
     public Optional<Usuario> actualizar(Integer id, Usuario usuarioActualizado) {
         return usuarioRepository.findById(id).map(usuarioExistente -> {
