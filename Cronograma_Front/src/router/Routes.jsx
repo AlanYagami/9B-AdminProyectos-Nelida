@@ -1,6 +1,6 @@
 // src/router/Router.jsx
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Home from './../pages/Home';
+import Home from './../users/Home';
 import About from './../pages/About';
 import Login from './../auth/Login';
 import Register from './../auth/Register';
@@ -11,17 +11,16 @@ import Error500Page from './../pages/Error500Page';
 import LoggedEvents from '../admin/LoggedEvents';
 import OrganizersList from '../admin/OrganizersList';
 import EventsPage from '../organizer/EventsPage';
-import Calendar from '../organizer/Calendar';
+import OrganizerCalendar from '../organizer/OrganizerCalendar';
+import UserCalendar from '../users/UserCalendar';
 
 function Router() {
   return (
     <BrowserRouter>
       <Routes>
         {/* Publicas */}
-        <Route path="/" element={<EventLandingPage />} />
-        <Route path="/home" element={<Home />} />
+        <Route path="/" element={<EventLandingPage />} /> 
         <Route path="/landing" element={<EventLandingPage />} />
-
         <Route path="/about" element={<About />} />
 
         {/* Autentificación  */}
@@ -35,9 +34,11 @@ function Router() {
 
         {/* Organizadores */}
         <Route path="/organizer/my-events" element={<EventsPage />} />
-        <Route path="/organizer/calendar" element={<Calendar />} />
+        <Route path="/organizer/calendar" element={<OrganizerCalendar />} />
 
         {/* Usuario */}
+        <Route path="/home" element={<Home />} />
+        <Route path="/user/calendar" element={<UserCalendar />} />
 
         {/* Error */}
         <Route path="*" element={<Error404Page />} />
