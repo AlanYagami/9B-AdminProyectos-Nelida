@@ -1,4 +1,3 @@
-import React from "react";
 import { NavLink } from "react-router-dom";
 import { FaCalendarAlt, FaUsers, FaSignOutAlt, FaHome } from "react-icons/fa";
 
@@ -13,7 +12,7 @@ const Sidebar = ({ onLogout, role = "organizador", username = "Admin" }) => {
       { path: "/organizer/my-events", label: "Mis Eventos", icon: <FaCalendarAlt /> },
     ],
     usuario: [
-      { path: "/user/events", label: "Eventos Disponibles", icon: <FaCalendarAlt /> },
+      { path: "/home", label: "Eventos Disponibles", icon: <FaCalendarAlt /> },
     ],
   };
 
@@ -67,17 +66,28 @@ const Sidebar = ({ onLogout, role = "organizador", username = "Admin" }) => {
             style={({ isActive }) => (isActive ? activeLinkStyle : undefined)}
           >
             <FaHome className="me-2" />
-            Home
+            Landing
           </NavLink>
         </li>
       </ul>
 
       {/* Boton de logout con color dinamico */}
       <div className="mt-auto">
-        <button className={`btn w-100`} style={ buttonStyle } onClick={onLogout}>
-          <FaSignOutAlt className="me-2" />
-          Cerrar Sesión
-        </button>
+        {role === "usuario" ? (
+          <NavLink to="/login" className="btn w-100" style={buttonStyle}>
+            <FaSignOutAlt className="me-2" />
+            ¿Eres organizador?
+          </NavLink>
+        ) : (
+          <button
+            className='btn w-100'
+            style={ buttonStyle }
+            onClick={onLogout}
+          >
+            <FaSignOutAlt className="me-2" />
+            Cerrar Sesión
+          </button>
+        )}
       </div>
     </div>
   );
