@@ -1,9 +1,7 @@
-
 import { useNavigate } from 'react-router-dom';
 
 function Login() {
-
-    const containerStyle = {
+  const containerStyle = {
     minHeight: '100vh',
     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
     display: 'flex',
@@ -57,16 +55,21 @@ function Login() {
     navigate('/forgot-password');
   };
 
+  const goToRegister = () => {
+    navigate('/register');
+  };
+
   return (
     <div style={containerStyle}>
       <div className="container">
         <div className="row">
-          <div className="col-md-6 d-flex align-items-center">
+          {/* Imagen grande - solo visible en pantallas md o mayores */}
+          <div className="col-md-6 d-none d-md-flex align-items-center">
             <div className="text-white">
               <h1 className="display-1 fw-bold mb-0">SICALE</h1>
               <div className="mt-4">
                 <img 
-                  src="src\assets\img\calendario.png" 
+                  src="src/assets/img/calendario.png" 
                   alt="Calendario" 
                   className="img-fluid"
                   style={{ maxWidth: '80%', height: 'auto' }}
@@ -74,15 +77,22 @@ function Login() {
               </div>
             </div>
           </div>
+
+          {/* Formulario */}
           <div className="col-md-6 d-flex align-items-center justify-content-center">
             <div style={cardStyle}>
-              <img 
-                src="src\assets\img\logo.png"
-                alt="Logo"
-                className='img-fluid mb-4'
-              />
-              
-              
+              {/* Logo clickeable */}
+              <div 
+                onClick={goToLanding} 
+                style={{ cursor: 'pointer' }}
+              >
+                <img 
+                  src="src/assets/img/logo.png"
+                  alt="Logo"
+                  className="img-fluid mb-4"
+                />
+              </div>
+
               <div>
                 <div className="mb-3">
                   <label className="form-label">Correo electrónico</label>
@@ -112,15 +122,15 @@ function Login() {
                   Iniciar
                 </button>
 
-                <button 
-                  type="button" 
-                  className="btn btn-primary w-100 mb-3"
-                  style={buttonStyle}
-                    onClick={goToLanding}
-                >
-                  Volver
-                </button>
-                
+                <div className="text-center">
+                  <a 
+                    href="#" 
+                    style={linkStyle}
+                    onClick={goToRegister}
+                  >
+                    ¿No tienes una cuenta? <strong>Regístrate</strong>
+                  </a>
+                </div>
                 <div className="text-center">
                   <a 
                     href="#" 
