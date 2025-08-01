@@ -12,6 +12,7 @@ import LoggedEvents from '../admin/LoggedEvents';
 import OrganizersList from '../admin/OrganizersList';
 import EventsPage from '../organizer/EventsPage';
 import OrganizerCalendar from '../organizer/OrganizerCalendar';
+import HistoryEvents from '../organizer/HistoryEvents';
 import UserCalendar from '../users/UserCalendar';
 
 function Router() {
@@ -35,6 +36,7 @@ function Router() {
         {/* Organizadores */}
         <Route path="/organizer/my-events" element={<EventsPage />} />
         <Route path="/organizer/calendar" element={<OrganizerCalendar />} />
+        <Route path="/organizer/History" element={<HistoryEvents />} />
 
         {/* Usuario */}
         <Route path="/home" element={<Home />} />

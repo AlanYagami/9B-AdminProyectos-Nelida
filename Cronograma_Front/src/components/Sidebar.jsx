@@ -1,8 +1,11 @@
+import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { FaCalendarAlt, FaUsers, FaSignOutAlt, FaHome } from "react-icons/fa";
+import { FaCalendarAlt, FaUsers, FaSignOutAlt, FaHome, FaBars } from "react-icons/fa";
+import { Offcanvas } from "react-bootstrap";
 
-// Roles: 'admin', 'organizador', 'usuario'
-const Sidebar = ({ onLogout, role = "organizador", username = "Admin" }) => {
+const Sidebar = ({ onLogout, role = "usuario", username = "usuario" }) => {
+  const [show, setShow] = useState(false);
+
   const menuOptions = {
     admin: [
       { path: "/admin/logged-events", label: "Eventos", icon: <FaCalendarAlt /> },
@@ -10,16 +13,11 @@ const Sidebar = ({ onLogout, role = "organizador", username = "Admin" }) => {
     ],
     organizador: [
       { path: "/organizer/my-events", label: "Mis Eventos", icon: <FaCalendarAlt /> },
+      { path: "/organizer/History", label: "Historial", icon: <FaUsers /> },
     ],
     usuario: [
       { path: "/home", label: "Eventos Disponibles", icon: <FaCalendarAlt /> },
     ],
-  };
-
-  const logoutButtonColors = {
-    admin: "btn-warning",
-    organizador: "btn-danger",
-    usuario: "btn-secondary",
   };
 
   const buttonStyle = {
@@ -29,23 +27,28 @@ const Sidebar = ({ onLogout, role = "organizador", username = "Admin" }) => {
 
   const options = menuOptions[role] || [];
 
-  return (
-    <div
-      className="d-flex flex-column vh-100 p-3 bg-dark text-white"
-      style={{ width: "240px", boxShadow: "4px 0 10px rgba(0, 0, 0, 0.3)" }}
-    >
+  // Estilo compartido para el contenido del sidebar
+  const sidebarContent = (
+    <>
       {/* Logo y nombre */}
       <div className="mb-4 text-center">
         <div
           className="rounded-circle p-3 mb-2 mx-auto"
-          style={{ width: "60px", height: "60px", backgroundColor: "#764BA2", display: "flex", alignItems: "center", justifyContent: "center" }}
+          style={{
+            width: "60px",
+            height: "60px",
+            backgroundColor: "#764BA2",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
         >
           <span className="fw-bold fs-4">L</span>
         </div>
         <h5>{username}</h5>
       </div>
 
-      {/* Navegacion */}
+      {/* Navegación */}
       <ul className="nav nav-pills flex-column mb-auto">
         {options.map((item, idx) => (
           <li className="nav-item" key={idx}>
@@ -53,17 +56,19 @@ const Sidebar = ({ onLogout, role = "organizador", username = "Admin" }) => {
               to={item.path}
               className="nav-link text-white"
               style={({ isActive }) => (isActive ? buttonStyle : undefined)}
+              onClick={() => setShow(false)}
             >
               {item.icon} <span className="ms-2">{item.label}</span>
             </NavLink>
           </li>
         ))}
-        {/* Home (todos) */}
+        {/* Home para todos */}
         <li>
           <NavLink
             to="/"
             className="nav-link text-white"
-            style={({ isActive }) => (isActive ? activeLinkStyle : undefined)}
+            style={({ isActive }) => (isActive ? buttonStyle : undefined)}
+            onClick={() => setShow(false)}
           >
             <FaHome className="me-2" />
             Landing
@@ -71,7 +76,7 @@ const Sidebar = ({ onLogout, role = "organizador", username = "Admin" }) => {
         </li>
       </ul>
 
-      {/* Boton de logout con color dinamico */}
+      {/* Logout */}
       <div className="mt-auto">
         {role === "usuario" ? (
           <NavLink to="/login" className="btn w-100" style={buttonStyle}>
@@ -79,17 +84,47 @@ const Sidebar = ({ onLogout, role = "organizador", username = "Admin" }) => {
             ¿Eres organizador?
           </NavLink>
         ) : (
-          <button
-            className='btn w-100'
-            style={ buttonStyle }
-            onClick={onLogout}
-          >
+          <button className="btn w-100" style={buttonStyle} onClick={onLogout}>
             <FaSignOutAlt className="me-2" />
             Cerrar Sesión
           </button>
         )}
       </div>
-    </div>
+    </>
+  );
+
+  return (
+    <>
+      {/* Botón hamburguesa para móviles */}
+      <button
+        className="btn btn-dark d-md-none m-2"
+        onClick={() => setShow(true)}
+      >
+        <FaBars />
+      </button>
+
+      {/* Sidebar fijo en pantallas grandes */}
+      <div
+        className="d-none d-md-flex flex-column vh-100 p-3 bg-dark text-white"
+        style={{ width: "240px", boxShadow: "4px 0 10px rgba(0, 0, 0, 0.3)" }}
+      >
+        {sidebarContent}
+      </div>
+
+      {/* Sidebar Offcanvas para móviles */}
+      <Offcanvas
+        show={show}
+        onHide={() => setShow(false)}
+        placement="start"
+        className="bg-dark text-white"
+        style={{ width: "240px" }}
+      >
+        <Offcanvas.Header closeButton closeVariant="white">
+          <Offcanvas.Title>Menú</Offcanvas.Title>
+        </Offcanvas.Header>
+        <Offcanvas.Body>{sidebarContent}</Offcanvas.Body>
+      </Offcanvas>
+    </>
   );
 };
 
