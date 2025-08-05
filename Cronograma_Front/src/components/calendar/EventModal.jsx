@@ -13,6 +13,7 @@ function EventModal({
   selectedSlot,
   isEditable,
   colors = [],
+  onDownloadPDF,
 }) {
   if (!show || !selectedSlot) return null;
 
@@ -92,7 +93,14 @@ function EventModal({
           </div>
           <div className="modal-footer justify-content-between">
             {!isEditable && (
-              <button className="btn btn-outline-light">Descargar</button>
+              <div className="d-flex">
+                <button
+                  className="btn btn-outline-light me-1"
+                  onClick={onDownloadPDF}
+                >
+                  Descargar
+                </button>
+              </div>
             )}
 
             <div>
@@ -106,6 +114,7 @@ function EventModal({
               )}
             </div>
           </div>
+
 
           <style jsx="true">{`
             .custom-modal-dialog {
