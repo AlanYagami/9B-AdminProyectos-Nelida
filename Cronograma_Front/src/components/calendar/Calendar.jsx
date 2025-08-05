@@ -4,19 +4,19 @@ import WeekHeader from './WeekHeader';
 import TimeGrid from './TimeGrid';
 import EventModal from './EventModal';
 import { formatDateKey } from '../../utils/dateHelpers';
+import { generarPDF } from './../../utils/pdfUtils';
 
-// Mapa de colores centralizado
 const colorMap = {
-  'Rojo': '#FF6B6B',          // rojo vibrante
-  'Morado': '#764BA2',        // morado medio
-  'Azul': '#45B7D1',          // azul cian claro
-  'Naranja': '#F2994A',       // naranja cálido
-  'Verde Lima': '#A3D900',    // verde lima brillante
-  'Cian': '#00B8D9',          // cian intenso
-  'Rosa Fucsia': '#FF4D94',   // rosa fuerte
-  'Amarillo': '#FFC93C',      // amarillo mostaza
-  'Turquesa': '#40E0D0',      // turquesa
-  'Lavanda': '#B57EDC',       // lavanda suave
+  'Rojo': '#FF6B6B',
+  'Morado': '#764BA2',
+  'Azul': '#45B7D1',
+  'Naranja': '#F2994A',
+  'Verde Lima': '#A3D900',
+  'Cian': '#00B8D9',
+  'Rosa Fucsia': '#FF4D94',
+  'Amarillo': '#FFC93C',
+  'Turquesa': '#40E0D0',
+  'Lavanda': '#B57EDC',
 };
 
 function Calendar({ role = 'user', event }) {
@@ -74,6 +74,7 @@ function Calendar({ role = 'user', event }) {
           events={events}
           event={event}
           color={selectedColorHex}
+          onDownloadPDF={() => generarPDF(event, events)}
         />
 
         <div className="col-md-9 p-0">
@@ -102,6 +103,7 @@ function Calendar({ role = 'user', event }) {
         colors={Object.keys(colorMap)}
         selectedSlot={selectedSlot}
         isEditable={isOrganizer}
+        onDownloadPDF={() => generarPDF(event, events)}
       />
     </div>
   );

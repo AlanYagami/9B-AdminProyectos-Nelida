@@ -1,7 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { formatDateKey } from '../../utils/dateHelpers';
+import QRModal from './../QR/QRModal';
 
-function MiniCalendar({ selectedDate, setSelectedDate, setCurrentWeek, events, event, color = '#764BA2' }) {
+function MiniCalendar({ selectedDate, setSelectedDate, setCurrentWeek, events, event, color = '#764BA2', onDownloadPDF }) {
+  const [showQRModal, setShowQRModal] = useState(false);
+
+  const handleShowQR = () => {
+    localStorage.setItem('eventoQR', JSON.stringify(event));
+    localStorage.setItem('cronogramaQR', JSON.stringify(events));
+    setShowQRModal(true);
+  };
+
   const dayNames = ['DOM', 'LUN', 'MAR', 'MIE', 'JUE', 'VIE', 'SAB'];
   const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
@@ -58,14 +67,34 @@ function MiniCalendar({ selectedDate, setSelectedDate, setCurrentWeek, events, e
 
   return (
     <div className="col-12 col-md-3 bg-dark p-3 border-end border-secondary d-flex flex-column mb-4 mb-md-0 flex-shrink-0" style={{ maxHeight: '100vh' }}>
-      {/* Botón de regreso */}
-      <button
-        className="btn mb-3"
-        style={btnColor}
-        onClick={() => window.history.back()}
-      >
-        Regresar
-      </button>
+      {/* Botones en una misma fila */}
+      <div className="d-flex mb-3">
+        <button
+          className="btn me-2"
+          style={btnColor}
+          onClick={() => window.history.back()}
+        >
+          Regresar
+        </button>
+        <button
+          className="btn btn-outline-light me-2"
+          onClick={() => onDownloadPDF()}
+        >
+          Descargar
+        </button>
+        <button
+          className="btn btn-outline-light"
+          onClick={handleShowQR}
+        >
+          QR
+        </button>
+      </div>
+
+      <QRModal
+        show={showQRModal}
+        onClose={() => setShowQRModal(false)}
+        eventoId={event?.id}
+      />
 
       {/* Título del evento (fuera del scroll) */}
       <h4 className="mb-4 text-white text-truncate">{eventTitle}</h4>

@@ -14,6 +14,8 @@ import EventsPage from '../organizer/EventsPage';
 import OrganizerCalendar from '../organizer/OrganizerCalendar';
 import HistoryEvents from '../organizer/HistoryEvents';
 import UserCalendar from '../users/UserCalendar';
+import QRModal from './../components/QR/QRModal'
+import CronogramaPage from './../components/CronogramaPage';
 
 function Router() {
   return (
@@ -45,6 +47,10 @@ function Router() {
         {/* Error */}
         <Route path="*" element={<Error404Page />} />
         <Route path="/500" element={<Error500Page />} />
+
+        {/* QR Code Page */}
+        <Route path="/qr" element={<QRModal />} />
+        <Route path="/cronograma" element={<CronogramaPage />} />
         
       </Routes>
     </BrowserRouter>
