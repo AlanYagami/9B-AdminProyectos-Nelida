@@ -60,7 +60,7 @@ public class AuthServices {
             if (found != null) return new APIResponse("El correo ya esta registrado", true, HttpStatus.BAD_REQUEST);
 
             if (payload.getRol() == null) {
-                Rol rol = rolRepository.findByRol("USER")
+                Rol rol = rolRepository.findByRol("ORGANIZADOR")
                         .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
                 payload.setRol(rol);
             }
