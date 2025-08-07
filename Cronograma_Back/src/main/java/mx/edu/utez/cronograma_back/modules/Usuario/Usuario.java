@@ -33,8 +33,8 @@ public class Usuario {
     @Column(name = "contra", nullable = false, length = 255)
     private String contra;
 
-    @Column(name = "empresa", nullable = false, length = 255)
-    private String empresa;
+    //@Column(name = "empresa", nullable = false, length = 255)
+    //private String empresa;
 
     @Column(name = "fecha_registro", nullable = false)
     private LocalDateTime fechaRegistro = LocalDateTime.now();
@@ -54,7 +54,6 @@ public class Usuario {
         this.nombre = nombre;
         this.correo = correo;
         this.contra = contra;
-        this.empresa = empresa;
         this.rol = rol;
         this.fechaRegistro = LocalDateTime.now();
         this.activo = true;
@@ -68,7 +67,6 @@ public class Usuario {
         this.nombre = nombre;
         this.correo = correo;
         this.contra = contra;
-        this.empresa = empresa;
         this.fechaRegistro = fechaRegistro;
         this.activo = activo;
         this.rol = rol;
@@ -105,14 +103,6 @@ public class Usuario {
 
     public void setContra(String contra) {
         this.contra = contra;
-    }
-
-    public String getEmpresa() {
-        return empresa;
-    }
-
-    public void setEmpresa(String empresa) {
-        this.empresa = empresa;
     }
 
     public LocalDateTime getFechaRegistro() {
