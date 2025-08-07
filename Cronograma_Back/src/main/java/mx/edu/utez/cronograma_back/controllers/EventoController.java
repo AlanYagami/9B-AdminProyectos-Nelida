@@ -53,4 +53,10 @@ public class EventoController {
                 new ResponseEntity<>(HttpStatus.NO_CONTENT) :
                 new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
+
+    @GetMapping("/mis-eventos/{id}")
+    public ResponseEntity<List<Evento>> getEventosPorOrganizador(@PathVariable Integer id) {
+        List<Evento> eventos = eventoService.obtenerEventosPorUsuarioId(id);
+        return new ResponseEntity<>(eventos, HttpStatus.OK);
+    }
 }

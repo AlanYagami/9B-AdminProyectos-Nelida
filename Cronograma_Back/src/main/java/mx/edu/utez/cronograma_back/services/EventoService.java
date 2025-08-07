@@ -67,4 +67,9 @@ public class EventoService {
             return true;
         }).orElse(false);
     }
+
+    public List<Evento> obtenerEventosPorUsuarioId(Integer idUsuario) {
+        return eventoRepository.findByUsuario_IdUsuario(idUsuario);
+    }
+
 }

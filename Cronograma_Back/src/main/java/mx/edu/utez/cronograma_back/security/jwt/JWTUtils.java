@@ -68,8 +68,16 @@ public class JWTUtils {
     }
 
     // Esta funcion consume la funcion de crar solo para retornar
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(UserDetails userDetails,Integer id, String nombre) {
         Map<String, Object> claims = new HashMap<>();
+        String rol = userDetails.getAuthorities().stream()
+                .findFirst()
+                .map(auth -> auth.getAuthority())
+                .orElse("ROLE_USER");
+        claims.put("rol", rol);
+        claims.put("id", id);
+        claims.put("nombre", nombre);
+
         return createToken(claims, userDetails.getUsername());
     }
 

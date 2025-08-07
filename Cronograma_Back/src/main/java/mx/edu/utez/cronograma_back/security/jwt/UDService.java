@@ -23,11 +23,8 @@ public class UDService implements UserDetailsService {
         //Buscar primero al usuario
         Usuario found = usuarioRepository.findByCorreo(correo).orElse(null);
         if (found == null) throw new UsernameNotFoundException("Correo no encontrado");
-        //Generar las autoridades para el contexto de seguridad
-        // authority= ROLE_ADMIN,ROLE_EMPLOYEE -> filterChain
         GrantedAuthority authority=new SimpleGrantedAuthority("ROLE_" + found.getRol().getRol());
 
-        //Retornar el objeto de usuario para registrar en el contexto de seguridad
         return new User(
                 found.getCorreo(),
                 found.getContra(),

@@ -1,7 +1,9 @@
 package mx.edu.utez.cronograma_back.modules.auth;
 
+import mx.edu.utez.cronograma_back.modules.Rol.Rol;
 import mx.edu.utez.cronograma_back.modules.Usuario.Usuario;
 import mx.edu.utez.cronograma_back.modules.auth.dto.LoginRequestDTO;
+import mx.edu.utez.cronograma_back.repositories.RolRepository;
 import mx.edu.utez.cronograma_back.repositories.UsuarioRepository;
 import mx.edu.utez.cronograma_back.security.jwt.JWTUtils;
 import mx.edu.utez.cronograma_back.security.jwt.UDService;
@@ -17,34 +19,36 @@ import java.sql.SQLException;
 
 @Service
 public class AuthServices {
+    @Autowired
+    private UsuarioRepository userRepository;
 
-        @Autowired
-        private UsuarioRepository userRepository;
+    @Autowired
+    private RolRepository rolRepository;
 
-        @Autowired
-        private UDService udService;
+    @Autowired
+    private UDService udService;
 
-        @Autowired
-        private JWTUtils jwtUtils;
+    @Autowired
+    private JWTUtils jwtUtils;
 
-        @Transactional(readOnly = true)
-        public APIResponse doLogin(LoginRequestDTO payload) {
-            try {
-                Usuario found = userRepository.findByCorreo(payload.getCorreo()).orElse(null);
-                if (found == null) return new APIResponse("Correo no encontrado", true, HttpStatus.NOT_FOUND);
+    @Transactional(readOnly = true)
+    public APIResponse doLogin(LoginRequestDTO payload) {
+        try {
+            Usuario found = userRepository.findByCorreo(payload.getCorreo()).orElse(null);
+            if (found == null) return new APIResponse("Correo no encontrado", true, HttpStatus.NOT_FOUND);
 
-                if (!PasswordEncoder.verifyPassword(payload.getContra(), found.getContra()))
-                    return new APIResponse("Las contrasenas no coniciden", true, HttpStatus.BAD_REQUEST);
+            if (!PasswordEncoder.verifyPassword(payload.getContra(), found.getContra()))
+                return new APIResponse("Las contrasenas no coniciden", true, HttpStatus.BAD_REQUEST);
 
-                UserDetails ud = udService.loadUserByUsername(found.getCorreo());
-                String token = jwtUtils.generateToken(ud);
-                return new APIResponse("Operacion exitosa", token, false, HttpStatus.OK);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                return new APIResponse(
-                        "Error al iniciar sesion",
-                        true,
-                        HttpStatus.INTERNAL_SERVER_ERROR
+            UserDetails ud = udService.loadUserByUsername(found.getCorreo());
+            String token = jwtUtils.generateToken(ud, found.getIdUsuario(), found.getNombre());
+            return new APIResponse("Operacion exitosa", token, false, HttpStatus.OK);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return new APIResponse(
+                    "Error al iniciar sesion",
+                    true,
+                    HttpStatus.INTERNAL_SERVER_ERROR
                 );
             }
         }
@@ -53,11 +57,16 @@ public class AuthServices {
     public APIResponse register(Usuario payload) {
         try {
             Usuario found = userRepository.findByCorreo(payload.getCorreo()).orElse(null);
-            if (found != null) return new APIResponse("El usuario ya existe", true, HttpStatus.BAD_REQUEST);
+            if (found != null) return new APIResponse("El correo ya esta registrado", true, HttpStatus.BAD_REQUEST);
+
+            if (payload.getRol() == null) {
+                Rol rol = rolRepository.findByRol("USER")
+                        .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
+                payload.setRol(rol);
+            }
 
             payload.setContra(PasswordEncoder.encodePassword(payload.getContra()));
             userRepository.save(payload);
-
             return new APIResponse("Operacion exitosa",false, HttpStatus.CREATED);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -65,7 +74,7 @@ public class AuthServices {
                     "Error al registrar al usuario",
                     true,
                     HttpStatus.INTERNAL_SERVER_ERROR
-                    );
+            );
         }
     }
 }

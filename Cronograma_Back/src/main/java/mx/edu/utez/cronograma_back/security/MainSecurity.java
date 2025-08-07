@@ -32,7 +32,7 @@ public class MainSecurity {
                 .cors(c -> c.configurationSource(corsRegistry()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/client/**").hasRole("ADMIN")
-                        .requestMatchers("/api/cede/**").hasRole("ORGANIZADOR")
+                        .requestMatchers("/api/cede/**").hasRole("USER")
                         .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
