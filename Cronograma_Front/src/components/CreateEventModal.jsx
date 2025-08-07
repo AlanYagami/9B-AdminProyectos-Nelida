@@ -1,12 +1,82 @@
-// src/components/EventModal.jsx
-import React from "react";
+import React, { useState } from "react";
 import { Modal, Button, Form, Row, Col } from "react-bootstrap";
 
 function CreateEventModal({ show, onClose, onRegister }) {
+  const [formData, setFormData] = useState({
+    nombreEvento: "",
+    fechaInicio: "",
+    horaInicio: "",
+    fechaFin: "",
+    horaFin: "",
+    ubicacion: "",
+    numAsistentes: "",
+    responsable: "",
+    qrCodigo: "",
+    qrUrl: "",
+    idTipoEvento: "",
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = () => {
+    if (!formData.nombreEvento || !formData.fechaInicio || !formData.horaInicio) {
+      alert("Nombre del evento, fecha y hora de inicio son obligatorios.");
+      return;
+    }
+
+    const userId = localStorage.getItem("userId") || 1;
+
+    const eventoPayload = {
+      nombreEvento: formData.nombreEvento,
+      fechaInicio: `${formData.fechaInicio}T${formData.horaInicio}`,
+      fechaFin: `${formData.fechaFin}T${formData.horaFin}`,
+      ubicacion: formData.ubicacion,
+      numAsistentes: parseInt(formData.numAsistentes || 0),
+      responsable: formData.responsable,
+      qrCodigo: formData.qrCodigo,
+      qrUrl: formData.qrUrl,
+      usuario: {
+        idUsuario: parseInt(userId),
+      },
+      tipoEvento: {
+        idTipoEvento: parseInt(formData.idTipoEvento),
+      },
+      estado: {
+        idEstado: 1,
+      },
+    };
+
+    onRegister(eventoPayload);
+    resetAndClose();
+  };
+
+  const resetAndClose = () => {
+    setFormData({
+      nombreEvento: "",
+      fechaInicio: "",
+      horaInicio: "",
+      fechaFin: "",
+      horaFin: "",
+      ubicacion: "",
+      numAsistentes: "",
+      responsable: "",
+      qrCodigo: "",
+      qrUrl: "",
+      idTipoEvento: "",
+    });
+    onClose();
+  };
+
   return (
     <Modal
       show={show}
-      onHide={onClose}
+      onHide={resetAndClose}
       centered
       dialogClassName="custom-modal"
       contentClassName="custom-modal-content"
@@ -20,34 +90,32 @@ function CreateEventModal({ show, onClose, onRegister }) {
             <Form.Label className="text-white">Nombre del evento</Form.Label>
             <Form.Control
               type="text"
-              placeholder="Ej. Fiesta de apertura"
-              className="custom-input"
-            />
-          </Form.Group>
-
-          <Form.Group className="mb-3">
-            <Form.Label className="text-white">Tipo de evento</Form.Label>
-            <Form.Control
-              type="text"
-              placeholder="Ej. Conferencia, Fiesta..."
+              name="nombreEvento"
+              value={formData.nombreEvento}
+              onChange={handleChange}
+              placeholder="Ej. Conferencia 2025"
               className="custom-input"
             />
           </Form.Group>
 
           <Row className="mb-3">
             <Col>
-              <Form.Label className="text-white">Duración en horas</Form.Label>
+              <Form.Label className="text-white">Fecha de inicio</Form.Label>
               <Form.Control
-                type="number"
-                placeholder="2"
+                type="date"
+                name="fechaInicio"
+                value={formData.fechaInicio}
+                onChange={handleChange}
                 className="custom-input"
               />
             </Col>
             <Col>
-              <Form.Label className="text-white">Horarios</Form.Label>
+              <Form.Label className="text-white">Hora de inicio</Form.Label>
               <Form.Control
-                type="text"
-                placeholder="Ej. 14:00 - 16:00"
+                type="time"
+                name="horaInicio"
+                value={formData.horaInicio}
+                onChange={handleChange}
                 className="custom-input"
               />
             </Col>
@@ -55,36 +123,103 @@ function CreateEventModal({ show, onClose, onRegister }) {
 
           <Row className="mb-3">
             <Col>
-              <Form.Label className="text-white">Día inicio</Form.Label>
-              <Form.Control type="date" className="custom-input" />
+              <Form.Label className="text-white">Fecha de fin</Form.Label>
+              <Form.Control
+                type="date"
+                name="fechaFin"
+                value={formData.fechaFin}
+                onChange={handleChange}
+                className="custom-input"
+              />
             </Col>
             <Col>
-              <Form.Label className="text-white">Día fin</Form.Label>
-              <Form.Control type="date" className="custom-input" />
+              <Form.Label className="text-white">Hora de fin</Form.Label>
+              <Form.Control
+                type="time"
+                name="horaFin"
+                value={formData.horaFin}
+                onChange={handleChange}
+                className="custom-input"
+              />
             </Col>
           </Row>
 
           <Form.Group className="mb-3">
-            <Form.Label className="text-white">Ubicación del evento</Form.Label>
+            <Form.Label className="text-white">Ubicación</Form.Label>
             <Form.Control
               type="text"
+              name="ubicacion"
+              value={formData.ubicacion}
+              onChange={handleChange}
               placeholder="Ej. Auditorio Central"
               className="custom-input"
             />
           </Form.Group>
 
-          <Form.Group className="mb-4">
-            <Form.Label className="text-white">Nombre del responsable</Form.Label>
+          <Form.Group className="mb-3">
+            <Form.Label className="text-white">Número de asistentes</Form.Label>
+            <Form.Control
+              type="number"
+              name="numAsistentes"
+              value={formData.numAsistentes}
+              onChange={handleChange}
+              placeholder="Ej. 150"
+              className="custom-input"
+            />
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label className="text-white">Responsable</Form.Label>
             <Form.Control
               type="text"
-              placeholder="Ej. Juan Pérez"
+              name="responsable"
+              value={formData.responsable}
+              onChange={handleChange}
+              placeholder="Ej. Laura Martínez"
+              className="custom-input"
+            />
+          </Form.Group>
+
+          <Row className="mb-3">
+            <Col>
+              <Form.Label className="text-white">QR Código</Form.Label>
+              <Form.Control
+                type="text"
+                name="qrCodigo"
+                value={formData.qrCodigo}
+                onChange={handleChange}
+                placeholder="Ej. QR123456789"
+                className="custom-input"
+              />
+            </Col>
+            <Col>
+              <Form.Label className="text-white">QR URL</Form.Label>
+              <Form.Control
+                type="text"
+                name="qrUrl"
+                value={formData.qrUrl}
+                onChange={handleChange}
+                placeholder="https://example.com/qr/QR123456789"
+                className="custom-input"
+              />
+            </Col>
+          </Row>
+
+          <Form.Group className="mb-4">
+            <Form.Label className="text-white">Tipo de evento (ID)</Form.Label>
+            <Form.Control
+              type="number"
+              name="idTipoEvento"
+              value={formData.idTipoEvento}
+              onChange={handleChange}
+              placeholder="Ej. 1"
               className="custom-input"
             />
           </Form.Group>
 
           <div className="d-flex justify-content-between align-items-center">
             <span
-              onClick={onClose}
+              onClick={resetAndClose}
               style={{
                 cursor: "pointer",
                 color: "#764BA2",
@@ -101,7 +236,7 @@ function CreateEventModal({ show, onClose, onRegister }) {
                 fontWeight: "bold",
                 padding: "6px 20px",
               }}
-              onClick={onRegister}
+              onClick={handleSubmit}
             >
               Registrar evento
             </Button>
@@ -115,7 +250,7 @@ function CreateEventModal({ show, onClose, onRegister }) {
           margin: 1.75rem auto;
         }
         .custom-modal-content {
-          background-color: #1e1e2f; /* gris oscuro azulado */
+          background-color: #1e1e2f;
           border-radius: 8px;
           color: white;
         }
@@ -130,16 +265,13 @@ function CreateEventModal({ show, onClose, onRegister }) {
         }
         .custom-input::placeholder {
           color: #bbb;
-          opacity: 1;
         }
         .custom-input:focus {
           background-color: #3b3b5c;
-          border-color: #764BA2;
-          color: white;
-          box-shadow: 0 0 8px #764BA2;
+          border-color: #764ba2;
+          box-shadow: 0 0 8px #764ba2;
         }
 
-        /* Responsividad */
         @media (max-width: 576px) {
           .custom-modal .modal-dialog {
             max-width: 90vw;

@@ -1,75 +1,61 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import EventCard from "../components/EventCard";
 import Sidebar from "../components/Sidebar";
 import SearchBar from "../components/SearchBar";
 import CreateEventModal from "../components/CreateEventModal";
+import api from "../services/api";
+import { useAuth } from "../context/AuthContext"; // 👈 Asegúrate de tener esta ruta correcta
 
 function EventsPage() {
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [eventos, setEventos] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  const dummyEvents = [
-    {
-      image: "https://i.pinimg.com/736x/3b/cf/6f/3bcf6fb3eef53f6047632232cf1ce238.jpg",
-      title: "Conferencia React",
-      description: "Charla sobre ReactJS moderna.",
-      dotColor: "#FF6B6B",
-      eventType: "Conferencia",
-      duration: 2,
-      schedule: "10:00 - 12:00",
-      startDate: "2025-08-01",
-      endDate: "2025-08-01",
-      location: "Auditorio Central",
-      organizer: "Laura Gómez",
-    },
-    {
-      image: "https://i.pinimg.com/736x/ea/b7/b6/eab7b65577d4537a2132cd743ed799db.jpg",
-      title: "Hackathon 2025",
-      description: "48 horas de desarrollo sin descanso.",
-      dotColor: "#B983FF",
-      eventType: "Competencia",
-      duration: 48,
-      schedule: "18:00 - 18:00",
-      startDate: "2025-09-10",
-      endDate: "2025-09-12",
-      location: "Salón de Tecnología",
-      organizer: "Equipo DevX",
-    },
-    {
-      image: "https://cdn.agenciasinc.es/var/ezwebin_site/storage/images/noticias/el-mapache-propaga-enfermedades-peligrosas-en-su-invasion-por-europa/2246733-2-esl-MX/El-mapache-propaga-enfermedades-peligrosas-en-su-invasion-por-Europa.jpg",
-      title: "Feria de Ciencias",
-      description: "Proyectos innovadores escolares.",
-      dotColor: "#FFE066",
-      eventType: "Exposición",
-      duration: 6,
-      schedule: "09:00 - 15:00",
-      startDate: "2025-10-05",
-      endDate: "2025-10-05",
-      location: "Gimnasio Escolar",
-      organizer: "Prof. Ramírez",
-    },
-  ];
+  const { logout } = useAuth(); // ✅ usamos logout del contexto
+  const userRole = "organizador"; // Si ya lo estás manejando con contexto, úsalo de ahí
 
-  const userRole = "organizador"; // organizador - usuario
+  const fetchEventos = async () => {
+    try {
+      const userId = localStorage.getItem("userId");
+      if (!userId) return;
+
+      const response = await api.eventos.getByUser(userId);
+      setEventos(response.data);
+    } catch (error) {
+      console.error("Error al cargar eventos:", error);
+      setEventos([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRegisterEvent = async (eventoData) => {
+    try {
+      await api.eventos.create(eventoData);
+      await fetchEventos();
+      setShowModal(false);
+    } catch (error) {
+      console.error("Error al crear evento:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchEventos();
+  }, []);
 
   return (
     <div className="d-flex" style={{ minHeight: "100vh", background: "#2a2a2e" }}>
-      <Sidebar onLogout={() => console.log("Logout")} role={userRole} username="Laura G." />
+      {/* ✅ Pasa logout real al Sidebar */}
+      <Sidebar onLogout={logout} role={userRole} username="Laura G." />
 
-      <div
-        className="flex-grow-1 text-white py-4 px-3"
-        style={{
-          marginLeft: "0",
-          marginTop: "56px",
-        }}
-      >
+      <div className="flex-grow-1 text-white py-4 px-3" style={{ marginLeft: "0", marginTop: "56px" }}>
         <div className="d-none d-md-block" style={{ height: "1px", marginLeft: "240px" }}></div>
 
         <h1 className="text-center mb-4">Mis Eventos</h1>
 
-        {/* Search bar */}
         <SearchBar
           searchValue={search}
           onSearchChange={setSearch}
@@ -80,26 +66,38 @@ function EventsPage() {
         <CreateEventModal
           show={showModal}
           onClose={() => setShowModal(false)}
-          onRegister={() => {
-            console.log("Evento registrado");
-            setShowModal(false);
-          }}
+          onRegister={handleRegisterEvent}
         />
 
-        {/* Event Cards */}
         <div className="d-flex flex-wrap justify-content-center gap-4">
-          {dummyEvents
-            .filter(event =>
-              event.title.toLowerCase().includes(search.toLowerCase()) ||
-              event.description.toLowerCase().includes(search.toLowerCase())
-            )
-            .map((event, idx) => (
-              <EventCard
-                key={idx}
-                {...event}
-                onClick={() => navigate('/organizer/calendar', { state: event })}
-              />
-            ))}
+          {isLoading ? (
+            <p className="text-white text-center">Cargando eventos...</p>
+          ) : eventos.length === 0 ? (
+            <p className="text-white text-center">No hay eventos registrados.</p>
+          ) : (
+            eventos
+              .filter(event =>
+                event.nombreEvento.toLowerCase().includes(search.toLowerCase())
+              )
+              .map((event, idx) => (
+                <EventCard
+                  key={event.idEvento || idx}
+                  title={event.nombreEvento}
+                  description={event.descripcion || ""}
+                  location={event.ubicacion}
+                  startDate={event.fechaInicio?.split("T")[0]}
+                  endDate={event.fechaFin?.split("T")[0]}
+                  schedule={`${event.fechaInicio?.split("T")[1]?.slice(0, 5)} - ${event.fechaFin?.split("T")[1]?.slice(0, 5)}`}
+                  duration={Math.ceil(
+                    (new Date(event.fechaFin) - new Date(event.fechaInicio)) / 3600000
+                  )}
+                  organizer={event.responsable}
+                  dotColor="#667eea"
+                  eventType={event.tipoEvento?.nombre || "Sin tipo"}
+                  onClick={() => navigate("/organizer/calendar", { state: event })}
+                />
+              ))
+          )}
         </div>
       </div>
     </div>

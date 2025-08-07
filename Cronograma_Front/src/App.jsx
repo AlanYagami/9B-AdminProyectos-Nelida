@@ -1,11 +1,17 @@
 import React from 'react';
-import Routes from './router/Routes';
+import Router from './router/Routes'; 
+import { AuthProvider } from './context/AuthContext';
+import { BrowserRouter } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 function App() {
   return (
-    <Routes />
+    <BrowserRouter>
+      <AuthProvider>
+        <Router />
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 

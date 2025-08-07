@@ -1,6 +1,68 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
+import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 function Login() {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+
+  const [formData, setFormData] = useState({
+    correo: '',
+    contrasena: '',
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async () => {
+    const { correo, contrasena } = formData;
+
+    if (!correo || !contrasena) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Campos incompletos',
+        text: 'Por favor, llena ambos campos',
+        confirmButtonColor: '#667eea',
+        background: '#2c2c2c',
+        color: 'white'
+      });
+      return;
+    }
+
+    try {
+      const response =await api.auth.login({
+        correo,
+        contra: contrasena,
+      });
+
+      const token = response.data.data;
+      const userRole = login(token); 
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Bienvenido',
+        text: 'Has iniciado sesión correctamente',
+        confirmButtonColor: '#667eea',
+        background: '#2c2c2c',
+        color: 'white'
+      }).then(() => {
+        if (userRole === 'role_admin') {
+          navigate('/admin/logged-events');
+        } else if (userRole === 'role_organizador') {
+          navigate('/organizer/my-events');
+        } else {
+          navigate('/home');
+        }
+      });
+    } catch (error) {
+
+    }
+  };
+
   const containerStyle = {
     minHeight: '100vh',
     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -36,41 +98,28 @@ function Login() {
     borderRadius: '8px',
     padding: '12px 24px',
     fontWeight: 'bold',
-    transition: 'all 0.3s ease'
+    transition: 'all 0.3s ease',
+    cursor: 'pointer'
   };
 
   const linkStyle = {
     color: '#667eea',
     textDecoration: 'none',
-    fontSize: '0.9rem'
-  };
-
-  const navigate = useNavigate();
-
-  const goToLanding = () => {
-    navigate('/landing');
-  };
-
-  const goToForgotPassword = () => {
-    navigate('/forgot-password');
-  };
-
-  const goToRegister = () => {
-    navigate('/register');
+    fontSize: '0.9rem',
+    cursor: 'pointer'
   };
 
   return (
     <div style={containerStyle}>
       <div className="container">
         <div className="row">
-          {/* Imagen grande - solo visible en pantallas md o mayores */}
           <div className="col-md-6 d-none d-md-flex align-items-center">
             <div className="text-white">
               <h1 className="display-1 fw-bold mb-0">SICALE</h1>
               <div className="mt-4">
-                <img 
-                  src="src/assets/img/calendario.png" 
-                  alt="Calendario" 
+                <img
+                  src="src/assets/img/calendario.png"
+                  alt="Calendario"
                   className="img-fluid"
                   style={{ maxWidth: '80%', height: 'auto' }}
                 />
@@ -78,15 +127,10 @@ function Login() {
             </div>
           </div>
 
-          {/* Formulario */}
           <div className="col-md-6 d-flex align-items-center justify-content-center">
             <div style={cardStyle}>
-              {/* Logo clickeable */}
-              <div 
-                onClick={goToLanding} 
-                style={{ cursor: 'pointer' }}
-              >
-                <img 
+              <div onClick={() => navigate('/landing')} style={{ cursor: 'pointer' }}>
+                <img
                   src="src/assets/img/logo.png"
                   alt="Logo"
                   className="img-fluid mb-4"
@@ -96,47 +140,46 @@ function Login() {
               <div>
                 <div className="mb-3">
                   <label className="form-label">Correo electrónico</label>
-                  <input 
-                    type="email" 
-                    className="form-control" 
+                  <input
+                    type="email"
+                    name="correo"
+                    className="form-control"
                     placeholder="ejemplo@org.mx"
                     style={inputStyle}
+                    value={formData.correo}
+                    onChange={handleChange}
                   />
                 </div>
-                
+
                 <div className="mb-3">
                   <label className="form-label">Contraseña</label>
-                  <input 
-                    type="password" 
-                    className="form-control" 
+                  <input
+                    type="password"
+                    name="contrasena"
+                    className="form-control"
                     placeholder="••••••••"
                     style={inputStyle}
+                    value={formData.contrasena}
+                    onChange={handleChange}
                   />
                 </div>
-                
-                <button 
-                  type="button" 
+
+                <button
+                  type="button"
                   className="btn btn-primary w-100 mb-3"
                   style={buttonStyle}
+                  onClick={handleSubmit}
                 >
                   Iniciar
                 </button>
 
                 <div className="text-center">
-                  <a 
-                    href="#" 
-                    style={linkStyle}
-                    onClick={goToRegister}
-                  >
+                  <a onClick={() => navigate('/register')} style={linkStyle}>
                     ¿No tienes una cuenta? <strong>Regístrate</strong>
                   </a>
                 </div>
-                <div className="text-center">
-                  <a 
-                    href="#" 
-                    style={linkStyle}
-                    onClick={goToForgotPassword}
-                  >
+                <div className="text-center mt-2">
+                  <a onClick={() => navigate('/forgot-password')} style={linkStyle}>
                     ¿Olvidaste la contraseña?
                   </a>
                 </div>
