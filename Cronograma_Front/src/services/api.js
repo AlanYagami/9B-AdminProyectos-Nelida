@@ -5,6 +5,8 @@ const api = {
   auth: {
     login: (credentials) => apiClient.post('/api/auth', credentials),
     register: (userData) => apiClient.post('/api/auth/register', userData),
+    forgotPassword: (email) => apiClient.post('/api/auth/forgot-password', { correo: email }), 
+    resetPassword: (token, newPassword) => apiClient.post('/api/auth/reset-password', { token, nuevaContraseña: newPassword }), 
   },
 
   eventos: {
@@ -44,12 +46,12 @@ const api = {
   },
 
   usuarios: {
-    getAll: () => apiClient.get('/api/usuarios'), // Obtener todos los usuarios
-    getById: (id) => apiClient.get(`/api/usuarios/${id}`), // Obtener un usuario por ID
-    getByCorreo: (correo) => apiClient.get(`/api/usuarios/correo/${correo}`), // Obtener un usuario por correo
-    // crear: (usuarioData) => apiClient.post('/api/usuarios', usuarioData), // Descomentado si quieres habilitar la creación
-    update: (id, usuarioData) => apiClient.put(`/api/usuarios/${id}`, usuarioData), // Actualizar un usuario por ID
-    delete: (id) => apiClient.delete(`/api/usuarios/${id}`), // Eliminar un usuario por ID
+    getAll: () => apiClient.get('/api/usuarios'), 
+    getById: (id) => apiClient.get(`/api/usuarios/${id}`), 
+    getByCorreo: (correo) => apiClient.get(`/api/usuarios/correo/${correo}`), 
+    crear: (usuarioData) => apiClient.post('/api/usuarios', usuarioData), 
+    update: (id, usuarioData) => apiClient.put(`/api/usuarios/${id}`, usuarioData), 
+    delete: (id) => apiClient.delete(`/api/usuarios/${id}`), 
   },
 };
 
