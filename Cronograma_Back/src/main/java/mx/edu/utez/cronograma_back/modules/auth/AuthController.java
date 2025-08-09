@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 
 @RestController
 @RequestMapping("/api/auth")
@@ -27,5 +29,15 @@ public class AuthController {
     public ResponseEntity<APIResponse> doRegister(@RequestBody Usuario payload){
         APIResponse response = authService.register(payload);
         return new ResponseEntity<>(response, response.getStatus());
+    }
+
+    @PostMapping("/forgot-password")
+    public APIResponse forgotPassword(@RequestBody Map<String, String> request) {
+        return authService.forgotPassword(request.get("correo"));
+    }
+
+    @PostMapping("/reset-password")
+    public APIResponse resetPassword(@RequestBody Map<String, String> request) {
+        return authService.resetPassword(request.get("token"), request.get("nuevaContraseña"));
     }
 }

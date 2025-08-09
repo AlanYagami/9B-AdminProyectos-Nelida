@@ -1,6 +1,7 @@
 package mx.edu.utez.cronograma_back.security.jwt;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
@@ -82,5 +83,31 @@ public class JWTUtils {
     }
 
     //Con esto terminamos de armar el jwtutils
+
+    public String generatePasswordResetToken(String correo) {
+        // Crear el token JWT con el correo y un tiempo de expiración corto
+        return Jwts.builder()
+                .setSubject(correo)
+                .setExpiration(new Date(System.currentTimeMillis() + 3600000))  // Expira en 1 hora
+                .signWith(SignatureAlgorithm.HS512, secretKey)
+                .compact();
+    }
+
+    public String validatePasswordResetToken(String token) {
+        try {
+            Jws<Claims> claims = Jwts.parser()
+                    .setSigningKey(secretKey)
+                    .parseClaimsJws(token);
+
+            Date expirationDate = claims.getBody().getExpiration();
+            if (expirationDate.before(new Date())) {
+                return null;  // Token expirado
+            }
+
+            return claims.getBody().getSubject();  // Devuelve el correo del usuario
+        } catch (Exception e) {
+            return null;  // Token inválido
+        }
+    }
 
 }
