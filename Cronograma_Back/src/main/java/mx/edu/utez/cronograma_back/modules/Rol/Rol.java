@@ -23,4 +23,9 @@ public class Rol {
 
     @Column(name = "rol", nullable = false, unique = true, length = 50)
     private String rol;
+
+    @OneToMany(mappedBy = "rol", cascade = CascadeType.ALL)
+    @JsonIgnore // Se ignora para evitar ciclos de referencia infinitos en JSON
+    private List<Usuario> usuarios;
+  
 }

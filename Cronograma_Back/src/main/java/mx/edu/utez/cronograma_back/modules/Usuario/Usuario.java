@@ -33,8 +33,8 @@ public class Usuario {
     @Column(name = "contra", nullable = false, length = 255)
     private String contra;
 
-    @Column(name = "empresa", nullable = false, length = 255)
-    private String empresa;
+    //@Column(name = "empresa", nullable = false, length = 255)
+    //private String empresa;
 
     @Column(name = "fecha_registro", nullable = false)
     private LocalDateTime fechaRegistro = LocalDateTime.now();
@@ -54,7 +54,6 @@ public class Usuario {
         this.nombre = nombre;
         this.correo = correo;
         this.contra = contra;
-        this.empresa = empresa;
         this.rol = rol;
         this.fechaRegistro = LocalDateTime.now();
         this.activo = true;

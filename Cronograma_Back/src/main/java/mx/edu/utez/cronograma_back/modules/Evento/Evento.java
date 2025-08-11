@@ -68,5 +68,4 @@ public class Evento {
     @JsonIgnore
     private List<Bloque> bloques;
 
-
 }

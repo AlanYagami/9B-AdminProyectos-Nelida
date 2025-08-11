@@ -19,4 +19,5 @@ public class TipoEvento {
 
     @Column(name = "tipo_evento", nullable = false, unique = true, length = 100)
     private String tipoEvento;
+
 }
