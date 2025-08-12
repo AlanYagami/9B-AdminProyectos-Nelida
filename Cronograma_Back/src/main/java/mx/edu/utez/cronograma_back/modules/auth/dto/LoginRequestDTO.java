@@ -7,6 +7,10 @@ public class LoginRequestDTO {
 
     // Constructor vacío
 
+
+    public LoginRequestDTO() {
+    }
+
     public LoginRequestDTO(String correo, String contra) {
         this.correo = correo;
         this.contra = contra;

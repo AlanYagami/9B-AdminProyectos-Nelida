@@ -18,8 +18,6 @@ import java.util.List;
 @Entity
 @Table(name = "evento")
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class Evento {
 
     @Id
@@ -68,4 +66,131 @@ public class Evento {
     @JsonIgnore
     private List<Bloque> bloques;
 
+    //
+
+
+    public Evento() {
+    }
+
+    public Evento(Integer idEvento, String nombreEvento, LocalDateTime fechaInicio, LocalDateTime fechaFin, String ubicacion, Integer numAsistentes, String responsable, String qrCodigo, String qrUrl, Usuario usuario, TipoEvento tipoEvento, Estado estado, List<Bloque> bloques) {
+        this.idEvento = idEvento;
+        this.nombreEvento = nombreEvento;
+        this.fechaInicio = fechaInicio;
+        this.fechaFin = fechaFin;
+        this.ubicacion = ubicacion;
+        this.numAsistentes = numAsistentes;
+        this.responsable = responsable;
+        this.qrCodigo = qrCodigo;
+        this.qrUrl = qrUrl;
+        this.usuario = usuario;
+        this.tipoEvento = tipoEvento;
+        this.estado = estado;
+        this.bloques = bloques;
+    }
+
+    //
+
+    public Integer getIdEvento() {
+        return idEvento;
+    }
+
+    public void setIdEvento(Integer idEvento) {
+        this.idEvento = idEvento;
+    }
+
+    public String getNombreEvento() {
+        return nombreEvento;
+    }
+
+    public void setNombreEvento(String nombreEvento) {
+        this.nombreEvento = nombreEvento;
+    }
+
+    public LocalDateTime getFechaInicio() {
+        return fechaInicio;
+    }
+
+    public void setFechaInicio(LocalDateTime fechaInicio) {
+        this.fechaInicio = fechaInicio;
+    }
+
+    public LocalDateTime getFechaFin() {
+        return fechaFin;
+    }
+
+    public void setFechaFin(LocalDateTime fechaFin) {
+        this.fechaFin = fechaFin;
+    }
+
+    public String getUbicacion() {
+        return ubicacion;
+    }
+
+    public void setUbicacion(String ubicacion) {
+        this.ubicacion = ubicacion;
+    }
+
+    public Integer getNumAsistentes() {
+        return numAsistentes;
+    }
+
+    public void setNumAsistentes(Integer numAsistentes) {
+        this.numAsistentes = numAsistentes;
+    }
+
+    public String getResponsable() {
+        return responsable;
+    }
+
+    public void setResponsable(String responsable) {
+        this.responsable = responsable;
+    }
+
+    public String getQrCodigo() {
+        return qrCodigo;
+    }
+
+    public void setQrCodigo(String qrCodigo) {
+        this.qrCodigo = qrCodigo;
+    }
+
+    public String getQrUrl() {
+        return qrUrl;
+    }
+
+    public void setQrUrl(String qrUrl) {
+        this.qrUrl = qrUrl;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
+
+    public TipoEvento getTipoEvento() {
+        return tipoEvento;
+    }
+
+    public void setTipoEvento(TipoEvento tipoEvento) {
+        this.tipoEvento = tipoEvento;
+    }
+
+    public Estado getEstado() {
+        return estado;
+    }
+
+    public void setEstado(Estado estado) {
+        this.estado = estado;
+    }
+
+    public List<Bloque> getBloques() {
+        return bloques;
+    }
+
+    public void setBloques(List<Bloque> bloques) {
+        this.bloques = bloques;
+    }
 }

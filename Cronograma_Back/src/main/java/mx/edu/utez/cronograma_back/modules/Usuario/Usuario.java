@@ -15,8 +15,6 @@ import java.util.List;
 @Entity
 @Table(name = "usuario")
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class Usuario {
 
     @Id
@@ -57,5 +55,87 @@ public class Usuario {
         this.rol = rol;
         this.fechaRegistro = LocalDateTime.now();
         this.activo = true;
+    }
+
+    //
+
+    public Usuario() {
+    }
+
+    public Usuario(Integer idUsuario, String nombre, String correo, String contra, LocalDateTime fechaRegistro, Boolean activo, Rol rol, List<Evento> eventos) {
+        this.idUsuario = idUsuario;
+        this.nombre = nombre;
+        this.correo = correo;
+        this.contra = contra;
+        this.fechaRegistro = fechaRegistro;
+        this.activo = activo;
+        this.rol = rol;
+        this.eventos = eventos;
+    }
+
+    //
+
+    public Integer getIdUsuario() {
+        return idUsuario;
+    }
+
+    public void setIdUsuario(Integer idUsuario) {
+        this.idUsuario = idUsuario;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getCorreo() {
+        return correo;
+    }
+
+    public void setCorreo(String correo) {
+        this.correo = correo;
+    }
+
+    public String getContra() {
+        return contra;
+    }
+
+    public void setContra(String contra) {
+        this.contra = contra;
+    }
+
+    public LocalDateTime getFechaRegistro() {
+        return fechaRegistro;
+    }
+
+    public void setFechaRegistro(LocalDateTime fechaRegistro) {
+        this.fechaRegistro = fechaRegistro;
+    }
+
+    public Boolean getActivo() {
+        return activo;
+    }
+
+    public void setActivo(Boolean activo) {
+        this.activo = activo;
+    }
+
+    public Rol getRol() {
+        return rol;
+    }
+
+    public void setRol(Rol rol) {
+        this.rol = rol;
+    }
+
+    public List<Evento> getEventos() {
+        return eventos;
+    }
+
+    public void setEventos(List<Evento> eventos) {
+        this.eventos = eventos;
     }
 }

@@ -8,8 +8,6 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "estado")
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class Estado {
 
     @Id
@@ -19,4 +17,32 @@ public class Estado {
 
     @Column(name = "estado", nullable = false, unique = true, length = 50)
     private String estado;
+
+    //
+
+    public Estado() {
+    }
+
+    public Estado(Integer idEstado, String estado) {
+        this.idEstado = idEstado;
+        this.estado = estado;
+    }
+
+    //
+
+    public Integer getIdEstado() {
+        return idEstado;
+    }
+
+    public void setIdEstado(Integer idEstado) {
+        this.idEstado = idEstado;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
 }

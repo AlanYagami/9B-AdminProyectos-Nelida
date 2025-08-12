@@ -1,6 +1,71 @@
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import Swal from 'sweetalert2';
+import api from '../services/api';
 
 function Register() {
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    nombre: '',
+    correo: '',
+    contrasena: '',
+    repetirContrasena: '',
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async () => {
+    const { nombre, correo, contrasena, repetirContrasena } = formData;
+
+    if (!nombre || !correo || !contrasena || !repetirContrasena) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Campos incompletos',
+        text: 'Por favor, llena todos los campos',
+        confirmButtonColor: '#667eea',
+        background: '#2c2c2c',
+        color: 'white'
+      });
+      return;
+    }
+
+    if (contrasena !== repetirContrasena) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Contraseñas no coinciden',
+        text: 'Asegúrate de que ambas contraseñas sean iguales',
+        confirmButtonColor: '#667eea',
+        background: '#2c2c2c',
+        color: 'white'
+      });
+      return;
+    }
+
+    try {
+      await api.auth.register({
+        nombre,
+        correo,
+        contra: contrasena,
+        rol: { idRol: 2 }
+      });
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Registro exitoso',
+        text: 'Ya puedes iniciar sesión',
+        confirmButtonColor: '#667eea',
+        background: '#2c2c2c',
+        color: 'white'
+      }).then(() => navigate('/login'));
+
+    } catch (error) {
+      // El error ya es manejado automáticamente por el interceptor
+    }
+  };
 
   const containerStyle = {
     minHeight: '100vh',
@@ -46,28 +111,17 @@ function Register() {
     fontSize: '0.9rem'
   };
 
-  const navigate = useNavigate();
-
-  const goToLanding = () => {
-    navigate('/landing');
-  };
-
-  const goToLogin = () => {
-    navigate('/login');
-  };
-
   return (
     <div style={containerStyle}>
       <div className="container">
         <div className="row">
-          {/* Imagen grande visible solo en pantallas md o mayores */}
           <div className="col-md-6 d-none d-md-flex align-items-center">
             <div className="text-white">
               <h1 className="display-1 fw-bold mb-0">SICALE</h1>
               <div className="mt-4">
-                <img 
-                  src="src/assets/img/calendario.png" 
-                  alt="Calendario" 
+                <img
+                  src="src/assets/img/calendario.png"
+                  alt="Calendario"
                   className="img-fluid"
                   style={{ maxWidth: '80%', height: 'auto' }}
                 />
@@ -75,75 +129,83 @@ function Register() {
             </div>
           </div>
 
-          {/* Formulario */}
           <div className="col-md-6 d-flex align-items-center justify-content-center">
             <div style={cardStyle}>
-              {/* Logo clickeable */}
-              <div 
-                onClick={goToLanding} 
-                style={{ cursor: 'pointer' }}
-              >
-                <img 
-                  src="src/assets/img/logo.png"
+              <div onClick={() => navigate('/landing')} style={{ cursor: 'pointer' }}>
+                <img
+                  src="/logo.svg"
                   alt="Logo"
-                  className="img-fluid mb-4"
+                  className="img-fluid mb-4 w-25 mx-auto d-block"
                 />
               </div>
 
               <div>
                 <div className="mb-3">
                   <label className="form-label">Nombre completo</label>
-                  <input 
-                    type="text" 
-                    className="form-control" 
+                  <input
+                    type="text"
+                    name="nombre"
+                    className="form-control"
                     placeholder="Juan Carlos Bodoque"
                     style={inputStyle}
+                    value={formData.nombre}
+                    onChange={handleChange}
                   />
                 </div>
-                
+
                 <div className="mb-3">
                   <label className="form-label">Correo electrónico</label>
-                  <input 
-                    type="email" 
-                    className="form-control" 
+                  <input
+                    type="email"
+                    name="correo"
+                    className="form-control"
                     placeholder="ejemplo@org.mx"
                     style={inputStyle}
+                    value={formData.correo}
+                    onChange={handleChange}
                   />
                 </div>
-                
+
                 <div className="mb-3">
                   <label className="form-label">Contraseña</label>
-                  <input 
-                    type="password" 
-                    className="form-control" 
+                  <input
+                    type="password"
+                    name="contrasena"
+                    className="form-control"
                     placeholder="••••••••"
                     style={inputStyle}
+                    value={formData.contrasena}
+                    onChange={handleChange}
                   />
                 </div>
 
                 <div className="mb-3">
                   <label className="form-label">Repetir Contraseña</label>
-                  <input 
-                    type="password" 
-                    className="form-control" 
+                  <input
+                    type="password"
+                    name="repetirContrasena"
+                    className="form-control"
                     placeholder="••••••••"
                     style={inputStyle}
+                    value={formData.repetirContrasena}
+                    onChange={handleChange}
                   />
                 </div>
-                
-                <button 
-                  type="button" 
+
+                <button
+                  type="button"
                   className="btn btn-primary w-100 mb-3"
                   style={buttonStyle}
+                  onClick={handleSubmit}
                 >
                   Registrarme
                 </button>
-                
+
                 <div className="text-center">
-                  <a 
-                    href="#" 
+                  <a
+                    href="#"
                     style={linkStyle}
-                    onClick={goToLogin}
+                    onClick={() => navigate('/login')}
                   >
                     ¿Ya tienes una cuenta? <strong>Iniciar sesión</strong>
                   </a>

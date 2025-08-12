@@ -1,4 +1,6 @@
 import PropTypes from "prop-types";
+import { colorMap } from "../data/colors";
+import { imageMap } from "../data/images";
 
 const EventCard = ({
   image,
@@ -14,6 +16,25 @@ const EventCard = ({
   location,
   organizer,
 }) => {
+  const getColorByText = (text) => {
+    if (!text) return "#ccc";
+    if (colorMap[text]) return colorMap[text];
+    const colors = Object.values(colorMap);
+    const index = text.charCodeAt(0) % colors.length;
+    return colors[index];
+  };
+
+  const resolvedDotColor = dotColor || getColorByText(eventType || title);
+
+  const getImageByText = (text) => {
+  if (!text) return "https://pbs.twimg.com/media/DnOElMPXcAcfGM7.jpg";
+  if (imageMap[text]) return imageMap[text];
+  
+  return "https://pbs.twimg.com/media/DnOElMPXcAcfGM7.jpg";
+  };
+  
+  const resolvedImage = image || getImageByText(eventType || title);
+
   return (
     <div
       className="card bg-dark text-white shadow-sm border-0 rounded-4"
@@ -34,7 +55,7 @@ const EventCard = ({
       }}
     >
       <img
-        src={image}
+        src={resolvedImage}
         className="card-img-top rounded-top-4"
         alt={title}
         style={{ height: "180px", objectFit: "cover" }}
@@ -45,15 +66,21 @@ const EventCard = ({
           style={{
             width: "12px",
             height: "12px",
-            backgroundColor: dotColor,
+            backgroundColor: resolvedDotColor,
           }}
         />
         <h5 className="card-title fw-semibold text-light">{title}</h5>
-        <p className="card-text text-secondary mb-3" style={{ fontSize: "0.9rem" }}>
+        <p
+          className="card-text text-secondary mb-3"
+          style={{ fontSize: "0.9rem" }}
+        >
           {description}
         </p>
 
-        <ul className="list-unstyled small" style={{ color: "#ccc", lineHeight: "1.6" }}>
+        <ul
+          className="list-unstyled small"
+          style={{ color: "#ccc", lineHeight: "1.6" }}
+        >
           {eventType && (
             <li>
               <span className="text-light fw-semibold">Tipo:</span>{" "}

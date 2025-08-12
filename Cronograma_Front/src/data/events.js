@@ -1,10 +1,8 @@
 const data = [
   {
     id: 1,
-    image: "https://i.pinimg.com/736x/3b/cf/6f/3bcf6fb3eef53f6047632232cf1ce238.jpg",
     title: "Conferencia React",
     description: "Charla sobre ReactJS moderna.",
-    dotColor: "#FF6B6B",
     eventType: "Conferencia",
     duration: 2,
     schedule: "10:00 - 12:00",
@@ -15,10 +13,8 @@ const data = [
   },
   {
     id: 2,
-    image: "https://i.pinimg.com/736x/ea/b7/b6/eab7b65577d4537a2132cd743ed799db.jpg",
     title: "Hackathon 2025",
     description: "48 horas de desarrollo sin descanso.",
-    dotColor: "#B983FF",
     eventType: "Competencia",
     duration: 48,
     schedule: "18:00 - 18:00",
@@ -29,10 +25,8 @@ const data = [
   },
   {
     id: 3,
-    image: "https://cdn.agenciasinc.es/var/ezwebin_site/storage/images/noticias/el-mapache-propaga-enfermedades-peligrosas-en-su-invasion-por-europa/2246733-2-esl-MX/El-mapache-propaga-enfermedades-peligrosas-en-su-invasion-por-Europa.jpg",
     title: "Feria de Ciencias",
     description: "Proyectos innovadores escolares.",
-    dotColor: "#FFE066",
     eventType: "Exposición",
     duration: 6,
     schedule: "09:00 - 15:00",

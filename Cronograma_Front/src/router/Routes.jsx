@@ -5,6 +5,7 @@ import About from './../pages/About';
 import Login from './../auth/Login';
 import Register from './../auth/Register';
 import ForgotPassword from '../auth/ForgotPassword';
+import ResetPassword from '../auth/ResetPassword';
 import EventLandingPage from './../pages/LandingPage';
 import Error404Page from './../pages/Error404Page';
 import Error500Page from './../pages/Error500Page';
@@ -16,44 +17,37 @@ import HistoryEvents from '../organizer/HistoryEvents';
 import UserCalendar from '../users/UserCalendar';
 import QRModal from './../components/QR/QRModal'
 import CronogramaPage from './../components/CronogramaPage';
+import ProtectedRoute from './ProtectedRoute';
 
 function Router() {
   return (
-    <BrowserRouter>
       <Routes>
-        {/* Publicas */}
-        <Route path="/" element={<EventLandingPage />} /> 
+        {/* Públicas */}
+        <Route path="/" element={<EventLandingPage />} />
         <Route path="/landing" element={<EventLandingPage />} />
         <Route path="/about" element={<About />} />
-
-        {/* Autentificación  */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/qr" element={<QRModal />} />
+        <Route path="/cronograma" element={<CronogramaPage />}/>
+        <Route path="/home" element={<Home />}/>
+        <Route path="/user/calendar"element={<UserCalendar />}/>
 
         {/* Admin */}
-        <Route path="/admin/logged-events" element={<LoggedEvents />} />
-        <Route path="/admin/organizers-list" element={<OrganizersList />} />
+        <Route path="/admin/logged-events" element={<ProtectedRoute allowedRoles={['role_admin']}><LoggedEvents /></ProtectedRoute>}/>
+        <Route path="/admin/organizers-list" element={<ProtectedRoute allowedRoles={['role_admin']}><OrganizersList /></ProtectedRoute>}/>
 
-        {/* Organizadores */}
-        <Route path="/organizer/my-events" element={<EventsPage />} />
-        <Route path="/organizer/calendar" element={<OrganizerCalendar />} />
-        <Route path="/organizer/History" element={<HistoryEvents />} />
-
-        {/* Usuario */}
-        <Route path="/home" element={<Home />} />
-        <Route path="/user/calendar" element={<UserCalendar />} />
+        {/* Organizador */}
+        <Route path="/organizer/my-events" element={<ProtectedRoute allowedRoles={['role_organizador']}><EventsPage /></ProtectedRoute>}/>
+        <Route path="/organizer/calendar" element={<ProtectedRoute allowedRoles={['role_organizador']}><OrganizerCalendar /></ProtectedRoute>}/>
+        <Route path="/organizer/History" element={ <ProtectedRoute allowedRoles={['role_organizador']}><HistoryEvents /></ProtectedRoute>}/>
 
         {/* Error */}
         <Route path="*" element={<Error404Page />} />
         <Route path="/500" element={<Error500Page />} />
-
-        {/* QR Code Page */}
-        <Route path="/qr" element={<QRModal />} />
-        <Route path="/cronograma" element={<CronogramaPage />} />
-        
       </Routes>
-    </BrowserRouter>
   );
 }
 
