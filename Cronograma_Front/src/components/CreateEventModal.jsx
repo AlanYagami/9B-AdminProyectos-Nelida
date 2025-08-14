@@ -1,38 +1,40 @@
-// src/components/EventModal.jsx
 import React, { useState, useEffect } from "react";
 import api from "./../services/api";
 import { Modal, Button, Form, Row, Col } from "react-bootstrap";
 
 function CreateEventModal({ show, onClose, onRegister }) {
-
   const [tiposEvento, setTiposEvento] = useState([]);
-
   const [duracionHoras, setDuracionHoras] = useState(0);
-  const calcularDuracion = (inicioFecha, inicioHora, finFecha, finHora) => {
-      if (inicioFecha && inicioHora && finFecha && finHora) {
-        const fechaInicioCompleta = new Date(`${inicioFecha}T${inicioHora}`);
-        const fechaFinCompleta = new Date(`${finFecha}T${finHora}`);
-        const diferencia = (fechaFinCompleta - fechaInicioCompleta) / (1000 * 60 * 60);
+  const usuarioId = localStorage.getItem("userId");
 
-        // Evita valores negativos o NaN
-        if (!isNaN(diferencia) && diferencia >= 0) {
-          setDuracionHoras(diferencia.toFixed(2));
-        } else {
-          setDuracionHoras(0);
-        }
+  const calcularDuracion = (inicioFecha, inicioHora, finFecha, finHora) => {
+    if (inicioFecha && inicioHora && finFecha && finHora) {
+      const fechaInicioCompleta = new Date(`${inicioFecha}T${inicioHora}`);
+      const fechaFinCompleta = new Date(`${finFecha}T${finHora}`);
+      const diferencia = (fechaFinCompleta - fechaInicioCompleta) / (1000 * 60 * 60);
+
+      if (!isNaN(diferencia) && diferencia >= 0) {
+        setDuracionHoras(diferencia.toFixed(2));
+      } else {
+        setDuracionHoras(0);
       }
+    }
   };
 
   useEffect(() => {
-    if (show) {
-      api.tipoEvento.getAll()
-        .then((res) => setTiposEvento(res.data))
-        .catch((err) => console.error("Error al cargar tipos de evento", err));
-    }
-  }, [show]);
+  if (show) {
+    api.tipoEvento
+      .getAll()
+      .then((res) => {
+        setTiposEvento(res.data);
+      })
+      .catch((err) => console.error("Error al cargar tipos de evento", err));
+  }
+}, [show]);
 
   const [formData, setFormData] = useState({
     nombreEvento: "",
+    descripcionEvento: "",
     tipoEventoId: "",
     fechaInicio: "",
     horaInicio: "",
@@ -42,17 +44,11 @@ function CreateEventModal({ show, onClose, onRegister }) {
     responsable: ""
   });
 
-  // Manejo de cambios en inputs
   const handleChange = (e) => {
     const { name, value } = e.target;
-    const updatedForm = {
-      ...formData,
-      [name]: value
-    };
-
+    const updatedForm = { ...formData, [name]: value };
     setFormData(updatedForm);
 
-    // Solo recalcula si los campos necesarios están definidos
     calcularDuracion(
       name === "fechaInicio" ? value : formData.fechaInicio,
       name === "horaInicio" ? value : formData.horaInicio,
@@ -61,19 +57,35 @@ function CreateEventModal({ show, onClose, onRegister }) {
     );
   };
 
-  // Envía los datos combinando fecha y hora
   const handleSubmit = () => {
-    const fechaInicioCompleta = `${formData.fechaInicio}T${formData.horaInicio}`;
-    const fechaFinCompleta = `${formData.fechaFin}T${formData.horaFin}`;
+    // Formatear horas para que tengan el formato HH:mm:ss
+    const horaInicioFormato = formData.horaInicio.length === 5
+      ? `${formData.horaInicio}:00`
+      : formData.horaInicio;
 
-    onRegister({
-      ...formData,
-      tipoEventoId: parseInt(formData.tipoEventoId),
-      fechaInicio: fechaInicioCompleta,
-      fechaFin: fechaFinCompleta,
-      duracionHoras: parseFloat(duracionHoras)
-    });
+    const horaFinFormato = formData.horaFin.length === 5
+      ? `${formData.horaFin}:00`
+      : formData.horaFin;
+
+    // Construir el payload exactamente como en Postman
+    const payload = {
+      nombreEvento: formData.nombreEvento,
+      descripcionEvento: formData.descripcionEvento,
+      fechaInicio: `${formData.fechaInicio}T${horaInicioFormato}`,
+      fechaFin: `${formData.fechaFin}T${horaFinFormato}`,
+      horaInicio: horaInicioFormato,
+      horaFin: horaFinFormato,
+      numHoras: parseFloat(duracionHoras),
+      responsable: formData.responsable,
+      ubicacion: formData.ubicacion,
+      estado: { idEstado: 1 },
+      tipoEvento: { idTipoEvento: parseInt(formData.tipoEventoId) },
+      usuario: { idUsuario: parseInt(usuarioId) }
+    };
+
+    onRegister(payload);
   };
+
 
   return (
     <Modal
@@ -101,20 +113,32 @@ function CreateEventModal({ show, onClose, onRegister }) {
           </Form.Group>
 
           <Form.Group className="mb-3">
+            <Form.Label className="text-white">Descripción del evento</Form.Label>
+            <Form.Control
+              as="textarea"
+              name="descripcionEvento"
+              value={formData.descripcionEvento}
+              onChange={handleChange}
+              placeholder="Escribe la descripción del evento"
+              className="custom-input"
+            />
+          </Form.Group>
+
+          <Form.Group className="mb-3">
             <Form.Label className="text-white">Tipo de evento</Form.Label>
             <Form.Select
               name="tipoEventoId"
               value={formData.tipoEventoId}
               onChange={handleChange}
-              className="custom-input"
-              >
+              className="custom-input text-white"
+            >
               <option value="">Selecciona un tipo</option>
               {tiposEvento.map((tipo) => (
                 <option key={tipo.idTipoEvento} value={tipo.idTipoEvento}>
-                  {tipo.nombre}
-                  </option>
-                ))}
-              </Form.Select>
+                  {tipo.tipoEvento}
+                </option>
+              ))}
+            </Form.Select>
           </Form.Group>
 
           <Row className="mb-3">

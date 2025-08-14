@@ -44,7 +44,10 @@ const Sidebar = ({ onLogout, role = "usuario", username = "usuario" }) => {
             justifyContent: "center",
           }}
         >
-          <span className="fw-bold fs-4">L</span>
+          {/* Cambia "L" por la primera letra del username */}
+          <span className="fw-bold fs-4">
+            {username ? username.charAt(0).toUpperCase() : "U"}
+          </span>
         </div>
         <h5>{username}</h5>
       </div>

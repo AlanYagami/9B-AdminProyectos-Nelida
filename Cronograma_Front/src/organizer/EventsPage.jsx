@@ -27,7 +27,9 @@ function EventsPage() {
 
       // Cargar eventos del usuario
       const response = await api.eventos.getByUser(userId);
-      setEventos(response.data);
+      setEventos(response.data.filter(
+        (ev) => new Date(ev.fechaFin) > new Date()
+      ));
 
       // Cargar lista completa de tipos de evento
       const tiposResponse = await api.tipoEvento.getAll();
@@ -41,28 +43,8 @@ function EventsPage() {
   };
 
   // Registrar un nuevo evento
-  const handleRegisterEvent = async (rawData) => {
+  const handleRegisterEvent = async (eventoData) => {
     try {
-      const idUsuario = localStorage.getItem("userId");
-      if (!idUsuario) {
-        console.error("ID de usuario no encontrado en localStorage");
-        return;
-      }
-
-      const eventoData = {
-        nombreEvento: rawData.nombreEvento,
-        fechaInicio: rawData.fechaInicio,
-        fechaFin: rawData.fechaFin,
-        horaInicio: rawData.horaInicio,
-        horaFin: rawData.horaFin,
-        numHoras: rawData.duracionHoras,
-        ubicacion: rawData.ubicacion,
-        responsable: rawData.responsable,
-        tipoEvento: { idTipoEvento: parseInt(rawData.tipoEventoId) }, // ID directo
-        usuario: { idUsuario: parseInt(idUsuario) },
-        estado: { idEstado: 1 } // Estado inicial
-      };
-
       await api.eventos.create(eventoData);
       await fetchEventos();
       setShowModal(false);
@@ -70,6 +52,9 @@ function EventsPage() {
       console.error("Error al registrar evento:", error);
     }
   };
+
+
+
 
   // Fetch inicial de eventos y tipos
   useEffect(() => {

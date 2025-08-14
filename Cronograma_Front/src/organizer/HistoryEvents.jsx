@@ -24,9 +24,12 @@ function HistoryEvents() {
 
       // Obtener eventos
       const response = await api.eventos.getByUser(userId);
-      const eventosHistorial = response.data.filter(
+      const eventosHistorial = response.data
+      // el filter es para eventos que ya han terminado
+      /*.filter(
         (ev) => new Date(ev.fechaFin) < new Date()
       );
+      */
       setEventos(eventosHistorial);
 
       // Obtener tipos de evento

@@ -24,14 +24,9 @@ const HistoryCard = ({
       style={{
         width: "100%",
         maxWidth: "20rem",
-        cursor: "pointer",
         transition: "transform 0.2s ease, box-shadow 0.2s ease",
       }}
       onClick={onClick}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = "scale(1.03)";
-        e.currentTarget.classList.add("shadow-lg");
-      }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = "scale(1)";
         e.currentTarget.classList.remove("shadow-lg");
