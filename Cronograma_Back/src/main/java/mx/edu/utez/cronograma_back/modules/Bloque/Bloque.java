@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import mx.edu.utez.cronograma_back.modules.Evento.Evento;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Entity
@@ -20,11 +21,11 @@ public class Bloque {
     @Column(name = "nombre_bloque", nullable = false, length = 100)
     private String nombreBloque;
 
+    @Column(name = "fecha_bloque", nullable = false)
+    private LocalDateTime fechaBloque;
+
     @Column(name = "hora_inicio", nullable = false)
     private LocalTime horaInicio;
-
-    @Column(name = "hora_fin", nullable = false)
-    private LocalTime horaFin;
 
     @Column(name = "color", length = 7)
     private String color;
@@ -39,21 +40,21 @@ public class Bloque {
     public Bloque() {
     }
 
-    public Bloque(Integer idBloque, String nombreBloque, LocalTime horaInicio, LocalTime horaFin, String color, String descripcion, Evento evento) {
+    public Bloque(Integer idBloque, String nombreBloque, LocalDateTime fechaBloque, LocalTime horaInicio, String color, String descripcion, Evento evento) {
         this.idBloque = idBloque;
         this.nombreBloque = nombreBloque;
+        this.fechaBloque = fechaBloque;
         this.horaInicio = horaInicio;
-        this.horaFin = horaFin;
         this.color = color;
         this.descripcion = descripcion;
         this.evento = evento;
     }
 
-    public Bloque(String nombreBloque, LocalTime horaInicio, LocalTime horaFin,
+    public Bloque(String nombreBloque, LocalDateTime fechaBloque, LocalTime horaInicio,
                   String color, String descripcion, Evento evento) {
         this.nombreBloque = nombreBloque;
+        this.fechaBloque = fechaBloque;
         this.horaInicio = horaInicio;
-        this.horaFin = horaFin;
         this.color = color;
         this.descripcion = descripcion;
         this.evento = evento;
@@ -61,44 +62,13 @@ public class Bloque {
 
     //
 
-    public Evento getEvento() {
-        return evento;
+
+    public Integer getIdBloque() {
+        return idBloque;
     }
 
-    public void setEvento(Evento evento) {
-        this.evento = evento;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
-
-    public String getColor() {
-        return color;
-    }
-
-    public void setColor(String color) {
-        this.color = color;
-    }
-
-    public LocalTime getHoraFin() {
-        return horaFin;
-    }
-
-    public void setHoraFin(LocalTime horaFin) {
-        this.horaFin = horaFin;
-    }
-
-    public LocalTime getHoraInicio() {
-        return horaInicio;
-    }
-
-    public void setHoraInicio(LocalTime horaInicio) {
-        this.horaInicio = horaInicio;
+    public void setIdBloque(Integer idBloque) {
+        this.idBloque = idBloque;
     }
 
     public String getNombreBloque() {
@@ -109,11 +79,43 @@ public class Bloque {
         this.nombreBloque = nombreBloque;
     }
 
-    public Integer getIdBloque() {
-        return idBloque;
+    public LocalDateTime getFechaBloque() {
+        return fechaBloque;
     }
 
-    public void setIdBloque(Integer idBloque) {
-        this.idBloque = idBloque;
+    public void setFechaBloque(LocalDateTime fechaBloque) {
+        this.fechaBloque = fechaBloque;
+    }
+
+    public LocalTime getHoraInicio() {
+        return horaInicio;
+    }
+
+    public void setHoraInicio(LocalTime horaInicio) {
+        this.horaInicio = horaInicio;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
+    public Evento getEvento() {
+        return evento;
+    }
+
+    public void setEvento(Evento evento) {
+        this.evento = evento;
     }
 }

@@ -2,12 +2,16 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DataTable from "react-data-table-component";
 import Sidebar from '../components/Sidebar';
+import { useAuth } from "../context/AuthContext";
 
 function LoggedEvents() {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
+  
+  const { logout } = useAuth();
 
-  const userRole = "admin";
+  const userRole = localStorage.getItem("role") || "Sin rol";
+  const username = localStorage.getItem("username") || "Sin nombre";
 
   const columns = [
     { name: "Evento", selector: row => row.evento, sortable: true },
@@ -85,7 +89,7 @@ function LoggedEvents() {
 
   return (
     <div className="d-flex" style={{ minHeight: '100vh', background: '#2a2a2e' }}>
-      <Sidebar onLogout={() => console.log("Logout")} role={userRole} username="admin" />
+      <Sidebar onLogout={logout} role={userRole} username={username} />
 
       <div className="flex-grow-1 p-4">
         <h3 className="text-white mb-4">Eventos Registrados</h3>

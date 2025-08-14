@@ -13,6 +13,7 @@ import mx.edu.utez.cronograma_back.modules.Tipo.TipoEvento;
 import mx.edu.utez.cronograma_back.modules.Usuario.Usuario;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Entity
@@ -28,6 +29,9 @@ public class Evento {
     @Column(name = "nombre_evento", nullable = false, length = 200)
     private String nombreEvento;
 
+    @Column(name = "descripcion_evento", nullable = false, length = 200)
+    private String descripcionEvento;
+
     @Column(name = "fecha_inicio", nullable = false)
     private LocalDateTime fechaInicio;
 
@@ -37,17 +41,17 @@ public class Evento {
     @Column(name = "ubicacion", length = 255)
     private String ubicacion;
 
-    @Column(name = "num_asistentes", nullable = false)
-    private Integer numAsistentes;
+    @Column(name = "num_horas", nullable = false)
+    private Integer numHoras;
 
     @Column(name = "responsable", length = 255)
     private String responsable;
 
-    @Column(name = "qr_codigo", length = 255)
-    private String qrCodigo;
+    @Column(name = "hora_inicio", nullable = false)
+    private LocalTime horaInicio;
 
-    @Column(name = "qr_url", columnDefinition = "TEXT")
-    private String qrUrl;
+    @Column(name = "hora_fin", nullable = false)
+    private LocalTime horaFin;
 
     @ManyToOne
     @JoinColumn(name = "id_usuario", nullable = false)
@@ -67,21 +71,19 @@ public class Evento {
     private List<Bloque> bloques;
 
     //
-
-
     public Evento() {
     }
 
-    public Evento(Integer idEvento, String nombreEvento, LocalDateTime fechaInicio, LocalDateTime fechaFin, String ubicacion, Integer numAsistentes, String responsable, String qrCodigo, String qrUrl, Usuario usuario, TipoEvento tipoEvento, Estado estado, List<Bloque> bloques) {
+    public Evento(Integer idEvento, String nombreEvento, String descripcionEvento, LocalDateTime fechaInicio, LocalDateTime fechaFin,
+                  String ubicacion, String responsable, Usuario usuario, TipoEvento tipoEvento, Estado estado,
+                  List<Bloque> bloques) {
         this.idEvento = idEvento;
         this.nombreEvento = nombreEvento;
+        this.descripcionEvento = descripcionEvento;
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
         this.ubicacion = ubicacion;
-        this.numAsistentes = numAsistentes;
         this.responsable = responsable;
-        this.qrCodigo = qrCodigo;
-        this.qrUrl = qrUrl;
         this.usuario = usuario;
         this.tipoEvento = tipoEvento;
         this.estado = estado;
@@ -104,6 +106,14 @@ public class Evento {
 
     public void setNombreEvento(String nombreEvento) {
         this.nombreEvento = nombreEvento;
+    }
+
+    public String getDescripcionEvento() {
+        return descripcionEvento;
+    }
+
+    public void setDescripcionEvento(String descripcionEvento) {
+        this.descripcionEvento = descripcionEvento;
     }
 
     public LocalDateTime getFechaInicio() {
@@ -130,12 +140,12 @@ public class Evento {
         this.ubicacion = ubicacion;
     }
 
-    public Integer getNumAsistentes() {
-        return numAsistentes;
+    public Integer getNumHoras() {
+        return numHoras;
     }
 
-    public void setNumAsistentes(Integer numAsistentes) {
-        this.numAsistentes = numAsistentes;
+    public void setNumHoras(Integer numHoras) {
+        this.numHoras = numHoras;
     }
 
     public String getResponsable() {
@@ -146,20 +156,20 @@ public class Evento {
         this.responsable = responsable;
     }
 
-    public String getQrCodigo() {
-        return qrCodigo;
+    public LocalTime getHoraInicio() {
+        return horaInicio;
     }
 
-    public void setQrCodigo(String qrCodigo) {
-        this.qrCodigo = qrCodigo;
+    public void setHoraInicio(LocalTime horaInicio) {
+        this.horaInicio = horaInicio;
     }
 
-    public String getQrUrl() {
-        return qrUrl;
+    public LocalTime getHoraFin() {
+        return horaFin;
     }
 
-    public void setQrUrl(String qrUrl) {
-        this.qrUrl = qrUrl;
+    public void setHoraFin(LocalTime horaFin) {
+        this.horaFin = horaFin;
     }
 
     public Usuario getUsuario() {

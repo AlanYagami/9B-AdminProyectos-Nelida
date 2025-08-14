@@ -4,9 +4,10 @@ import Calendar from './../components/calendar/Calendar';
 function OrganizerCalendar() {
   const location = useLocation();
   const event = location.state;
+  const userRole = localStorage.getItem("role") || "Sin rol";
 
   return (
-    <Calendar role="organizer" event={event} />
+    <Calendar role={userRole} event={event} />
   );
 }
 

@@ -56,7 +56,7 @@ function MiniCalendar({ selectedDate, setSelectedDate, setCurrentWeek, events, e
     });
 
   // Estado interno para el título del evento
-  const [eventTitle, setEventTitle] = useState(event?.title || 'Sin evento seleccionado');
+  const [eventTitle, setEventTitle] = useState(event?.nombreEvento || 'Sin evento seleccionado');
 
   // Actualizar título cuando cambie el prop event
   useEffect(() => {

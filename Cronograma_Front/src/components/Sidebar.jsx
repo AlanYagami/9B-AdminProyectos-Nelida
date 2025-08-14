@@ -7,16 +7,17 @@ const Sidebar = ({ onLogout, role = "usuario", username = "usuario" }) => {
   const [show, setShow] = useState(false);
 
   const menuOptions = {
-    admin: [
+    role_admin: [
       { path: "/admin/logged-events", label: "Eventos", icon: <FaCalendarAlt /> },
       { path: "/admin/organizers-list", label: "Organizadores", icon: <FaUsers /> },
     ],
-    organizador: [
+    role_organizador: [
       { path: "/organizer/my-events", label: "Mis Eventos", icon: <FaCalendarAlt /> },
       { path: "/organizer/History", label: "Historial", icon: <FaUsers /> },
     ],
     usuario: [
       { path: "/home", label: "Eventos Disponibles", icon: <FaCalendarAlt /> },
+      { path: "/", label: "Landing", icon: <FaHome /> },
     ],
   };
 
@@ -62,18 +63,6 @@ const Sidebar = ({ onLogout, role = "usuario", username = "usuario" }) => {
             </NavLink>
           </li>
         ))}
-        {/* Home para todos */}
-        <li>
-          <NavLink
-            to="/"
-            className="nav-link text-white"
-            style={({ isActive }) => (isActive ? buttonStyle : undefined)}
-            onClick={() => setShow(false)}
-          >
-            <FaHome className="me-2" />
-            Landing
-          </NavLink>
-        </li>
       </ul>
 
       {/* Logout */}

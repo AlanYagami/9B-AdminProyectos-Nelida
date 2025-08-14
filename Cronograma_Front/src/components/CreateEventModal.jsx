@@ -1,8 +1,80 @@
 // src/components/EventModal.jsx
-import React from "react";
+import React, { useState, useEffect } from "react";
+import api from "./../services/api";
 import { Modal, Button, Form, Row, Col } from "react-bootstrap";
 
 function CreateEventModal({ show, onClose, onRegister }) {
+
+  const [tiposEvento, setTiposEvento] = useState([]);
+
+  const [duracionHoras, setDuracionHoras] = useState(0);
+  const calcularDuracion = (inicioFecha, inicioHora, finFecha, finHora) => {
+      if (inicioFecha && inicioHora && finFecha && finHora) {
+        const fechaInicioCompleta = new Date(`${inicioFecha}T${inicioHora}`);
+        const fechaFinCompleta = new Date(`${finFecha}T${finHora}`);
+        const diferencia = (fechaFinCompleta - fechaInicioCompleta) / (1000 * 60 * 60);
+
+        // Evita valores negativos o NaN
+        if (!isNaN(diferencia) && diferencia >= 0) {
+          setDuracionHoras(diferencia.toFixed(2));
+        } else {
+          setDuracionHoras(0);
+        }
+      }
+  };
+
+  useEffect(() => {
+    if (show) {
+      api.tipoEvento.getAll()
+        .then((res) => setTiposEvento(res.data))
+        .catch((err) => console.error("Error al cargar tipos de evento", err));
+    }
+  }, [show]);
+
+  const [formData, setFormData] = useState({
+    nombreEvento: "",
+    tipoEventoId: "",
+    fechaInicio: "",
+    horaInicio: "",
+    fechaFin: "",
+    horaFin: "",
+    ubicacion: "",
+    responsable: ""
+  });
+
+  // Manejo de cambios en inputs
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    const updatedForm = {
+      ...formData,
+      [name]: value
+    };
+
+    setFormData(updatedForm);
+
+    // Solo recalcula si los campos necesarios están definidos
+    calcularDuracion(
+      name === "fechaInicio" ? value : formData.fechaInicio,
+      name === "horaInicio" ? value : formData.horaInicio,
+      name === "fechaFin" ? value : formData.fechaFin,
+      name === "horaFin" ? value : formData.horaFin
+    );
+  };
+
+  // Envía los datos combinando fecha y hora
+  const handleSubmit = () => {
+    const fechaInicioCompleta = `${formData.fechaInicio}T${formData.horaInicio}`;
+    const fechaFinCompleta = `${formData.fechaFin}T${formData.horaFin}`;
+
+    onRegister({
+      ...formData,
+      tipoEventoId: parseInt(formData.tipoEventoId),
+      fechaInicio: fechaInicioCompleta,
+      fechaFin: fechaFinCompleta,
+      duracionHoras: parseFloat(duracionHoras)
+    });
+  };
+
   return (
     <Modal
       show={show}
@@ -20,6 +92,9 @@ function CreateEventModal({ show, onClose, onRegister }) {
             <Form.Label className="text-white">Nombre del evento</Form.Label>
             <Form.Control
               type="text"
+              name="nombreEvento"
+              value={formData.nombreEvento}
+              onChange={handleChange}
               placeholder="Ej. Fiesta de apertura"
               className="custom-input"
             />
@@ -27,27 +102,39 @@ function CreateEventModal({ show, onClose, onRegister }) {
 
           <Form.Group className="mb-3">
             <Form.Label className="text-white">Tipo de evento</Form.Label>
-            <Form.Control
-              type="text"
-              placeholder="Ej. Conferencia, Fiesta..."
+            <Form.Select
+              name="tipoEventoId"
+              value={formData.tipoEventoId}
+              onChange={handleChange}
               className="custom-input"
-            />
+              >
+              <option value="">Selecciona un tipo</option>
+              {tiposEvento.map((tipo) => (
+                <option key={tipo.idTipoEvento} value={tipo.idTipoEvento}>
+                  {tipo.nombre}
+                  </option>
+                ))}
+              </Form.Select>
           </Form.Group>
 
           <Row className="mb-3">
             <Col>
-              <Form.Label className="text-white">Duración en horas</Form.Label>
+              <Form.Label className="text-white">Día inicio</Form.Label>
               <Form.Control
-                type="number"
-                placeholder="2"
+                type="date"
+                name="fechaInicio"
+                value={formData.fechaInicio}
+                onChange={handleChange}
                 className="custom-input"
               />
             </Col>
             <Col>
-              <Form.Label className="text-white">Horarios</Form.Label>
+              <Form.Label className="text-white">Día fin</Form.Label>
               <Form.Control
-                type="text"
-                placeholder="Ej. 14:00 - 16:00"
+                type="date"
+                name="fechaFin"
+                value={formData.fechaFin}
+                onChange={handleChange}
                 className="custom-input"
               />
             </Col>
@@ -55,19 +142,44 @@ function CreateEventModal({ show, onClose, onRegister }) {
 
           <Row className="mb-3">
             <Col>
-              <Form.Label className="text-white">Día inicio</Form.Label>
-              <Form.Control type="date" className="custom-input" />
+              <Form.Label className="text-white">Hora inicio</Form.Label>
+              <Form.Control
+                type="time"
+                name="horaInicio"
+                value={formData.horaInicio}
+                onChange={handleChange}
+                className="custom-input"
+              />
             </Col>
             <Col>
-              <Form.Label className="text-white">Día fin</Form.Label>
-              <Form.Control type="date" className="custom-input" />
+              <Form.Label className="text-white">Hora fin</Form.Label>
+              <Form.Control
+                type="time"
+                name="horaFin"
+                value={formData.horaFin}
+                onChange={handleChange}
+                className="custom-input"
+              />
             </Col>
           </Row>
+
+          <Form.Group className="mb-3">
+            <Form.Label className="text-white">Duración total (horas)</Form.Label>
+            <Form.Control
+              type="number"
+              value={duracionHoras}
+              readOnly
+              className="custom-input"
+            />
+          </Form.Group>
 
           <Form.Group className="mb-3">
             <Form.Label className="text-white">Ubicación del evento</Form.Label>
             <Form.Control
               type="text"
+              name="ubicacion"
+              value={formData.ubicacion}
+              onChange={handleChange}
               placeholder="Ej. Auditorio Central"
               className="custom-input"
             />
@@ -77,6 +189,9 @@ function CreateEventModal({ show, onClose, onRegister }) {
             <Form.Label className="text-white">Nombre del responsable</Form.Label>
             <Form.Control
               type="text"
+              name="responsable"
+              value={formData.responsable}
+              onChange={handleChange}
               placeholder="Ej. Juan Pérez"
               className="custom-input"
             />
@@ -101,7 +216,8 @@ function CreateEventModal({ show, onClose, onRegister }) {
                 fontWeight: "bold",
                 padding: "6px 20px",
               }}
-              onClick={onRegister}
+              onClick={handleSubmit}
+              disabled={duracionHoras <= 0}
             >
               Registrar evento
             </Button>
@@ -115,7 +231,7 @@ function CreateEventModal({ show, onClose, onRegister }) {
           margin: 1.75rem auto;
         }
         .custom-modal-content {
-          background-color: #1e1e2f; /* gris oscuro azulado */
+          background-color: #1e1e2f;
           border-radius: 8px;
           color: white;
         }
@@ -138,8 +254,6 @@ function CreateEventModal({ show, onClose, onRegister }) {
           color: white;
           box-shadow: 0 0 8px #764BA2;
         }
-
-        /* Responsividad */
         @media (max-width: 576px) {
           .custom-modal .modal-dialog {
             max-width: 90vw;
