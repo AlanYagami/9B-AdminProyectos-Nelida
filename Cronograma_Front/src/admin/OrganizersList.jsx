@@ -24,7 +24,6 @@ function OrganizersList() {
       // Aquí usa tu endpoint real, por ejemplo:
       const response = await api.usuarios.getAll();
       setOrganizadores(response.data || []);
-      console.log("Organizadores cargados:", response.data);
       setError(null);
     } catch (err) {
       console.error("Error al cargar organizadores:", err);
@@ -83,8 +82,6 @@ function OrganizersList() {
           day: "2-digit",
           month: "long",
           year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
         });
       },
       sortable: true,
@@ -138,14 +135,14 @@ function OrganizersList() {
     },
   ];
 
-  // 🔹 Filtrado de búsqueda
+  // Filtrado de búsqueda
   const filteredData = organizadores.filter(item =>
     (item.evento || "").toLowerCase().includes(search.toLowerCase()) ||
     (item.correo || "").toLowerCase().includes(search.toLowerCase()) ||
     (item.fecha || "").includes(search)
   );
 
-  // 🔹 Estilos de la tabla
+  // Estilos de la tabla
   const customStyles = {
     table: { style: { backgroundColor: "#2a2a2e", color: "#e0e0e0" } },
     headCells: { style: { backgroundColor: "#333", color: "#e0e0e0", fontWeight: "bold" } },

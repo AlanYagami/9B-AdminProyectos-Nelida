@@ -91,7 +91,11 @@ function EventsPage() {
           ) : (
             eventos
               .filter(event =>
-                event.nombreEvento.toLowerCase().includes(search.toLowerCase())
+                event.nombreEvento.toLowerCase().includes(search.toLowerCase()) ||
+                event.descripcionEvento.toLowerCase().includes(search.toLowerCase()) ||
+                event.tipoEvento?.tipoEvento.toLowerCase().includes(search.toLowerCase()) ||
+                event.responsable.toLowerCase().includes(search.toLowerCase()) ||
+                event.ubicacion.toLowerCase().includes(search.toLowerCase())
               )
               .map((event, idx) => {
                 // Busca el nombre del tipo de evento

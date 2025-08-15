@@ -34,6 +34,9 @@ public class MainSecurity {
                         .requestMatchers("/api/client/**").hasRole("ADMIN")
                         .requestMatchers("/api/cede/**").hasRole("USER")
                         .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/eventos/publico/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/tipos-evento/publico/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/bloques/publico/evento/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

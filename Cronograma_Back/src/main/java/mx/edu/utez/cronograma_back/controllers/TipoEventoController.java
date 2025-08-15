@@ -26,6 +26,19 @@ public class TipoEventoController {
         return ResponseEntity.ok(tipos);
     }
 
+    @GetMapping("/publico")
+    public ResponseEntity<List<TipoEvento>> obtenerTodosPublico() {
+        List<TipoEvento> tipos = tipoEventoService.obtenerTodos();
+        return ResponseEntity.ok(tipos);
+    }
+
+    @GetMapping("/publico/{id}")
+    public ResponseEntity<TipoEvento> obtenerPorIdPublico(@PathVariable Integer id) {
+        return tipoEventoService.obtenerPorId(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<TipoEvento> obtenerPorId(@PathVariable Integer id) {
         return tipoEventoService.obtenerPorId(id)

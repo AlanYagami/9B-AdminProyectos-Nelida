@@ -23,6 +23,12 @@ public class BloqueController {
         return ResponseEntity.ok(bloqueService.obtenerTodos());
     }
 
+    @GetMapping("/publico/evento/{idEvento}")
+    public ResponseEntity<List<Bloque>> obtenerTodosPublicoID(@PathVariable Integer idEvento) {
+        List<Bloque> bloques = bloqueService.obtenerPorEvento(idEvento);
+        return ResponseEntity.ok(bloques);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Bloque> obtenerPorId(@PathVariable Integer id) {
         return bloqueService.obtenerPorId(id)

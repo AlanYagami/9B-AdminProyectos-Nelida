@@ -1,5 +1,6 @@
 // src/services/api.js
 import apiClient from "./axiosConfig";
+import apiPublicClient from "./apiPublicClient";
 
 const api = {
   auth: {
@@ -53,6 +54,14 @@ const api = {
     update: (id, usuarioData) => apiClient.put(`/api/usuarios/${id}`, usuarioData), 
     delete: (id) => apiClient.delete(`/api/usuarios/${id}`), 
   },
+
+  publico: {
+    getEventosPublicos: () => apiPublicClient.get('/api/eventos/publico'),
+    getEventosPublicosByTipo: (id) => apiPublicClient.get(`/api/eventos/publico/${id}`),
+    getTiposEventosPublico: () => apiPublicClient.get('/api/tipos-evento/publico'),
+    getTipoEventoPublicoById: (id) => apiPublicClient.get(`/api/tipos-evento/publico/${id}`),
+    getBloquesPublicosByEvento: (idEvento) => apiPublicClient.get(`/api/bloques/publico/evento/${idEvento}`),
+  }
 };
 
 export default api;
