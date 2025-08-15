@@ -1,9 +1,10 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-
+// por alguna razon NO SE CREA NADA con ciertos colores ni ANTES DE LAS 9:00
 function EventModal({
   show,
   onClose,
   onSubmit,
+  onDelete, // ✅ nuevo
   eventTitle,
   setEventTitle,
   eventDescription,
@@ -14,6 +15,7 @@ function EventModal({
   isEditable,
   colors = [],
   onDownloadPDF,
+  editingBlock // ✅ saber si estamos editando
 }) {
   if (!show || !selectedSlot) return null;
 
@@ -23,17 +25,13 @@ function EventModal({
         <div className="modal-content custom-modal-content">
           <div className="modal-header custom-modal-header">
             <h5 className="modal-title text-white">
-              {isEditable ? 'Crear/Editar Evento' : 'Detalles del Evento'}
+              {isEditable ? (editingBlock ? 'Editar Evento' : 'Crear Evento') : 'Detalles del Evento'}
             </h5>
             <button className="btn-close btn-close-white" onClick={onClose}></button>
           </div>
           <div className="modal-body text-white">
-            <p>
-              <strong>Fecha:</strong> {selectedSlot.date.toDateString()}
-            </p>
-            <p>
-              <strong>Hora:</strong> {selectedSlot.time}
-            </p>
+            <p><strong>Fecha:</strong> {selectedSlot.date.toDateString()}</p>
+            <p><strong>Hora:</strong> {selectedSlot.time}</p>
 
             {isEditable ? (
               <>
@@ -79,28 +77,25 @@ function EventModal({
               </>
             ) : (
               <>
-                <p>
-                  <strong>Título:</strong> {eventTitle || 'Sin título'}
-                </p>
-                <p>
-                  <strong>Descripción:</strong> {eventDescription || 'Sin descripción'}
-                </p>
-                <p>
-                  <strong>Color:</strong> {eventColor || 'No asignado'}
-                </p>
+                <p><strong>Título:</strong> {eventTitle || 'Sin título'}</p>
+                <p><strong>Descripción:</strong> {eventDescription || 'Sin descripción'}</p>
+                <p><strong>Color:</strong> {eventColor || 'No asignado'}</p>
               </>
             )}
           </div>
           <div className="modal-footer justify-content-between">
             {!isEditable && (
               <div className="d-flex">
-                <button
-                  className="btn btn-outline-light me-1"
-                  onClick={onDownloadPDF}
-                >
+                <button className="btn btn-outline-light me-1" onClick={onDownloadPDF}>
                   Descargar
                 </button>
               </div>
+            )}
+
+            {editingBlock && isEditable && (
+              <button className="btn btn-danger me-auto" onClick={onDelete}>
+                Eliminar
+              </button>
             )}
 
             <div>
@@ -115,7 +110,7 @@ function EventModal({
             </div>
           </div>
 
-
+          {/* 🎨 Tus estilos originales, intactos */}
           <style jsx="true">{`
             .custom-modal-dialog {
               max-width: 600px;
@@ -181,8 +176,6 @@ function EventModal({
               border-color: #5a5f78;
               color: white;
             }
-
-            /* Responsividad */
             @media (max-width: 576px) {
               .custom-modal-dialog {
                 max-width: 90vw;

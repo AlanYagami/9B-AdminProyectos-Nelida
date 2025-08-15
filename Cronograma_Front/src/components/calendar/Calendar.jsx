@@ -19,29 +19,28 @@ function Calendar({ role = 'user', event }) {
   const [eventTitle, setEventTitle] = useState('');
   const [eventDescription, setEventDescription] = useState('');
   const [eventColor, setEventColor] = useState('');
+  const [editingBlock, setEditingBlock] = useState(null);
   const [showEventModal, setShowEventModal] = useState(false);
 
   const selectedColorHex = colorMap[eventColor] || '#757575';
 
   const fetchBloques = async () => {
     try {
-      let response;
-      if (event?.idEvento) {
-        response = await api.bloques.getByEvento(event.idEvento);
-      } else {
-        response = await api.bloques.getAll();
-      }
+      const response = event?.idEvento
+        ? await api.bloques.getByEvento(event.idEvento)
+        : await api.bloques.getAll();
 
       const bloques = response.data;
       const formatted = {};
 
       bloques.forEach(b => {
-        const fechaBloque = new Date(b.fechaBloque); // ← camelCase
-        const horaInicio = b.horaInicio.slice(0, 5); // ← camelCase
+        const fechaBloque = new Date(b.fechaBloque);
+        const horaInicio = b.horaInicio.slice(0, 5);
         const key = `${formatDateKey(fechaBloque)}-${horaInicio}`;
 
         formatted[key] = {
-          title: b.nombreBloque, // ← camelCase
+          idBloque: b.idBloque,
+          title: b.nombreBloque,
           description: b.descripcion,
           color: colorMap[b.color] || '#757575',
           date: fechaBloque,
@@ -56,22 +55,36 @@ function Calendar({ role = 'user', event }) {
     }
   };
 
-
   useEffect(() => {
     fetchBloques();
   }, [event]);
 
-  const handleSlotClick = (date, time) => {
+  const openModalForSlot = (date, time) => {
+    const key = `${formatDateKey(date)}-${time}`;
+    const existingEvent = events[key];
+
+    if (existingEvent) {
+      // Modo edición
+      setEventTitle(existingEvent.title);
+      setEventDescription(existingEvent.description);
+      setEventColor(Object.keys(colorMap).find(c => colorMap[c] === existingEvent.color) || '');
+      setEditingBlock({ idBloque: existingEvent.idBloque });
+    } else {
+      // Nuevo
+      setEventTitle('');
+      setEventDescription('');
+      setEventColor('');
+      setEditingBlock(null);
+    }
+
     setSelectedSlot({ date, time });
-    setEventTitle('');
-    setEventDescription('');
-    setEventColor('');
     setShowEventModal(true);
   };
 
   const handleClose = () => {
     setShowEventModal(false);
     setSelectedSlot(null);
+    setEditingBlock(null);
   };
 
   const handleDownloadPDF = () => {
@@ -79,28 +92,40 @@ function Calendar({ role = 'user', event }) {
   };
 
   const handleSubmit = async () => {
-    if (eventTitle.trim() && selectedSlot) {
-      const newBloque = {
-        color: eventColor,
-        descripcion: eventDescription,
-        fechaBloque: selectedSlot.date,
-        horaInicio: selectedSlot.time + ':00',
-        horaFin: '', // aquí podrías calcular o pedir
-        nombreBloque: eventTitle,
-        idEvento: event?.idEvento || 1
-      };
+    if (!eventTitle.trim() || !eventColor || !selectedSlot) return;
 
-      try {
-        await api.bloques.create(newBloque);
-        await fetchBloques(); // recarga después de insertar
-      } catch (error) {
-        console.error('Error al crear bloque:', error);
+    const payload = {
+      nombreBloque: eventTitle,
+      descripcion: eventDescription,
+      color: eventColor,
+      fechaBloque: selectedSlot.date.toISOString(),
+      horaInicio: selectedSlot.time + ':00',
+      evento: { idEvento: event?.idEvento || 1 }
+    };
+
+    try {
+      if (editingBlock) {
+        await api.bloques.update(editingBlock.idBloque, payload);
+      } else {
+        await api.bloques.create(payload);
       }
-
+      await fetchBloques();
       handleClose();
+    } catch (error) {
+      console.error('Error al guardar bloque:', error);
     }
   };
 
+  const handleDelete = async () => {
+    if (!editingBlock) return;
+    try {
+      await api.bloques.delete(editingBlock.idBloque);
+      await fetchBloques();
+      handleClose();
+    } catch (error) {
+      console.error('Error al eliminar bloque:', error);
+    }
+  };
 
   return (
     <div className="container-fluid bg-dark text-white min-vh-100">
@@ -112,7 +137,7 @@ function Calendar({ role = 'user', event }) {
           events={events}
           event={event}
           color={selectedColorHex}
-          onDownloadPDF={() => generarPDF(event, events)}
+          onDownloadPDF={handleDownloadPDF}
         />
 
         <div className="col-md-9 p-0">
@@ -123,7 +148,7 @@ function Calendar({ role = 'user', event }) {
           <TimeGrid
             currentWeek={currentWeek}
             events={events}
-            onSlotClick={handleSlotClick}
+            onSlotClick={openModalForSlot}
           />
         </div>
       </div>
@@ -132,6 +157,7 @@ function Calendar({ role = 'user', event }) {
         show={showEventModal}
         onClose={handleClose}
         onSubmit={handleSubmit}
+        onDelete={handleDelete}
         eventTitle={eventTitle}
         setEventTitle={setEventTitle}
         eventDescription={eventDescription}
@@ -142,6 +168,7 @@ function Calendar({ role = 'user', event }) {
         selectedSlot={selectedSlot}
         isEditable={isOrganizer}
         onDownloadPDF={handleDownloadPDF}
+        editingBlock={editingBlock}
       />
     </div>
   );
