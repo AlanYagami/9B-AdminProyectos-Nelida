@@ -2,8 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DataTable from "react-data-table-component";
 import Sidebar from '../components/Sidebar';
+import UserModal from '../components/UserModal';
 import { useAuth } from "../context/AuthContext";
 import api from '../services/api';
+
+import Swal from 'sweetalert2';
 
 function OrganizersList() {
   const navigate = useNavigate();
@@ -16,6 +19,9 @@ function OrganizersList() {
 
   const userRole = localStorage.getItem("role") || "Sin rol";
   const username = localStorage.getItem("username") || "Sin nombre";
+
+  const [showModal, setShowModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   // Obtener organizadores de la API
   const fetchOrganizadores = async () => {
@@ -35,19 +41,94 @@ function OrganizersList() {
 
   //Editar organizador
   const onEdit = (row) => {
-    console.log("Editar", row);
-    // Aquí podrías navegar a un formulario
-    // navigate(`/editar-organizador/${row.idUsuario}`);
+    setSelectedUser(row);
+    setShowModal(true);
+  };
+
+  const handleUpdateUser = async (formData) => {
+    try {
+      if (formData.contrasena || formData.repetirContrasena) {
+        if (formData.contrasena !== formData.repetirContrasena) {
+          Swal.fire({
+            icon: "warning",
+            title: "Contraseñas no coinciden",
+            text: "Asegúrate de que ambas contraseñas sean iguales",
+            confirmButtonColor: "#667eea",
+            background: "#2c2c2c",
+            color: "white",
+          });
+          return;
+        }
+      }
+
+      const usuarioData = {
+        nombre: formData.nombre,
+        correo: formData.correo,
+        rol: { idRol: 2 },
+      };
+
+      if (formData.contrasena) {
+        usuarioData.contra = formData.contrasena;
+      }
+
+      await api.usuarios.update(selectedUser.idUsuario, usuarioData);
+
+      Swal.fire({
+        icon: "success",
+        title: "Usuario actualizado",
+        background: "#2c2c2c",
+        color: "white",
+      });
+
+      setShowModal(false);
+      setSelectedUser(null);
+      await fetchOrganizadores();
+    } catch (err) {
+      console.error(err);
+      Swal.fire({
+        icon: "error",
+        title: "Error al actualizar",
+        background: "#2c2c2c",
+        color: "white",
+      });
+    }
   };
 
   //Eliminar organizador
   const onDelete = async (row) => {
-    if (!window.confirm(`¿Seguro que quieres eliminar a ${row.nombre || row.correo}?`)) return;
-    try {
-      await api.usuarios.delete(row.idUsuario); // o el id correspondiente
-      fetchOrganizadores(); // Recargar lista
-    } catch (err) {
-      console.error("Error al eliminar organizador:", err);
+    const result = await Swal.fire({
+      title: `¿Eliminar organizador "${row.nombre}"?`,
+      text: "Esta acción no se puede deshacer.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ff4d4d",
+      cancelButtonColor: "#667eea",
+      background: '#2c2c2c',
+      color: '#ffffff',
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    });
+    if (result.isConfirmed) {
+      try {
+        await api.usuarios.delete(row.idUsuario);
+        await fetchOrganizadores(); // Recargar lista
+        Swal.fire({
+          title: "Eliminado",
+          text: "El organizador fue eliminado exitosamente.",
+          icon: "success",
+          background: '#2c2c2c',
+          color: '#ffffff',
+        });
+      } catch (error) {
+        console.error("Error al eliminar organizador:", error);
+        Swal.fire({
+          title: "Error",
+          text: "No se pudo eliminar el organizador.",
+          icon: "error",
+          background: '#2c2c2c',
+          color: '#ffffff',
+        });
+      }
     }
   };
 
@@ -61,39 +142,17 @@ function OrganizersList() {
       name: "Nombre del Organizador",
       selector: row => row.nombre || "—",
       sortable: true,
-      wrap: true,
-      grow: 3,
-      maxWidth: "400px",
     },
     {
       name: "Correo",
       selector: row => row.correo || "—",
       sortable: true,
-      wrap: true,
-      grow: 4,
-      maxWidth: "500px",
-    },
-    {
-      name: "Fecha de Registro",
-      selector: row => {
-        if (!row.fechaRegistro) return "—";
-        const fecha = new Date(row.fechaRegistro);
-        return fecha.toLocaleDateString("es-ES", {
-          day: "2-digit",
-          month: "long",
-          year: "numeric",
-        });
-      },
-      sortable: true,
-      center: true,
-      grow: 1,
-      maxWidth: "250px",
     },
     {
       name: "Acciones",
       cell: (row) => (
         <div
-          className="d-flex flex-wrap justify-content-center align-items-center"
+          className="d-flex flex-wrap"
           style={{ gap: "0.5rem", minWidth: "250px" }}
         >
           <button
@@ -131,15 +190,13 @@ function OrganizersList() {
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
-      grow: 3,
     },
   ];
 
   // Filtrado de búsqueda
   const filteredData = organizadores.filter(item =>
     (item.evento || "").toLowerCase().includes(search.toLowerCase()) ||
-    (item.correo || "").toLowerCase().includes(search.toLowerCase()) ||
-    (item.fecha || "").includes(search)
+    (item.correo || "").toLowerCase().includes(search.toLowerCase())
   );
 
   // Estilos de la tabla
@@ -186,6 +243,12 @@ function OrganizersList() {
           }
         />
       </div>
+      <UserModal
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        onSubmit={handleUpdateUser}
+        userData={selectedUser}
+      />
     </div>
   );
 }

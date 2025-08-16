@@ -35,40 +35,44 @@ function LoggedEvents() {
   };
 
   const onDelete = async (row) => {
-  const result = await Swal.fire({
-    title: `¿Eliminar evento "${row.nombreEvento}"?`,
-    text: "Esta acción no se puede deshacer.",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#ff4d4d",
-    cancelButtonColor: "#667eea",
-    background: '#2c2c2c',
-    color: '#ffffff',
-    confirmButtonText: "Sí, eliminar",
-    cancelButtonText: "Cancelar",
-  });
+    const result = await Swal.fire({
+      title: `¿Eliminar evento "${row.nombreEvento}"?`,
+      text: "Esta acción no se puede deshacer.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ff4d4d",
+      cancelButtonColor: "#667eea",
+      background: '#2c2c2c',
+      color: '#ffffff',
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    });
 
-  if (result.isConfirmed) {
-    try {
-      await api.eventos.delete(row.idEvento);
-      await fetchEventos(); // Recargar lista
-      Swal.fire({
-        title: "Eliminado",
-        text: "El evento fue eliminado exitosamente.",
-        icon: "success",
-        timer: 2000,
-        showConfirmButton: false,
-      });
-    } catch (err) {
-      console.error("Error al eliminar evento:", err);
-      Swal.fire({
-        title: "Error",
-        text: "No se pudo eliminar el evento.",
-        icon: "error",
-      });
+    if (result.isConfirmed) {
+      try {
+        await api.eventos.delete(row.idEvento);
+        await fetchEventos(); // Recargar lista
+        Swal.fire({
+          title: "Eliminado",
+          text: "El evento fue eliminado exitosamente.",
+          icon: "success",
+          background: '#2c2c2c',
+          color: '#ffffff',
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      } catch (err) {
+        console.error("Error al eliminar evento:", err);
+        Swal.fire({
+          title: "Error",
+          text: "No se pudo eliminar el evento.",
+          icon: "error",
+          background: '#2c2c2c',
+          color: '#ffffff',
+        });
+      }
     }
-  }
-};
+  };
 
 
   useEffect(() => {

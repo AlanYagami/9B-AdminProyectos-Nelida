@@ -3,6 +3,7 @@ package mx.edu.utez.cronograma_back.services;
 import lombok.RequiredArgsConstructor;
 import mx.edu.utez.cronograma_back.modules.Usuario.Usuario;
 import mx.edu.utez.cronograma_back.repositories.UsuarioRepository;
+import mx.edu.utez.cronograma_back.utils.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,9 +37,20 @@ public class UsuarioService {
     public Optional<Usuario> actualizar(Integer id, Usuario usuarioActualizado) {
         return usuarioRepository.findById(id).map(usuarioExistente -> {
             usuarioActualizado.setIdUsuario(usuarioExistente.getIdUsuario());
+
+            //
+            String nuevaContra = usuarioActualizado.getContra();
+            if (nuevaContra != null && !nuevaContra.equals(usuarioExistente.getContra())) {
+                usuarioActualizado.setContra(PasswordEncoder.encodePassword(nuevaContra));
+            } else {
+                //
+                usuarioActualizado.setContra(usuarioExistente.getContra());
+            }
+
             return usuarioRepository.save(usuarioActualizado);
         });
     }
+
 
     public boolean eliminar(Integer id) {
         return usuarioRepository.findById(id).map(usuario -> {
