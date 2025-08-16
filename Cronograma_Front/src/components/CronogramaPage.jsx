@@ -1,24 +1,47 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { generarPDF } from './../utils/pdfUtils';
+import api from './../services/api';
 
 const CronogramaPage = () => {
   const [params] = useSearchParams();
   const eventoId = params.get('id');
 
   useEffect(() => {
-    const eventoRaw = localStorage.getItem('eventoQR');
-    const cronogramaRaw = localStorage.getItem('cronogramaQR');
+    const fetchData = async () => {
+      if (!eventoId) return;
 
-    if (!eventoRaw || !cronogramaRaw) return;
+      try {
+        const eventoRes = await api.publico.getEventosPublicosById(eventoId); 
+        const evento = eventoRes.data;
 
-    const evento = JSON.parse(eventoRaw);
-    const cronograma = JSON.parse(cronogramaRaw);
+        const bloquesRes = await api.publico.getBloquesPublicosByEvento(eventoId);
+        const bloques = bloquesRes.data;
 
-    if (!evento || !cronograma) return;
+        const formatted = {};
+        bloques.forEach(b => {
+          const fechaBloque = new Date(b.fechaBloque);
+          const horaInicio = b.horaInicio.slice(0, 5);
+          const key = `${fechaBloque.toISOString().split('T')[0]}-${horaInicio}`;
 
-    generarPDF(evento, cronograma);
-  }, []);
+          formatted[key] = {
+            idBloque: b.idBloque,
+            title: b.nombreBloque,
+            description: b.descripcion,
+            color: b.color || '#757575',
+            date: fechaBloque,
+            time: horaInicio
+          };
+        });
+
+        generarPDF(evento, formatted);
+      } catch (error) {
+        console.error('Error cargando cronograma:', error);
+      }
+    };
+
+    fetchData();
+  }, [eventoId]);
 
   return (
     <div className="text-center mt-5">

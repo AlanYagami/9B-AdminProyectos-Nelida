@@ -25,42 +25,42 @@ function Calendar({ role = 'user', event }) {
   const selectedColorHex = colorMap[eventColor] || '#757575';
 
     const fetchBloques = async () => {
-    try {
-      let response;
-      if (isOrganizer) {
-        response = event?.idEvento
-          ? await api.bloques.getByEvento(event.idEvento)
-          : await api.bloques.getAll();
-      } else {
-        response = event?.idEvento
-          ? await api.publico.getBloquesPublicosByEvento(event.idEvento)
-          : { data: [] };
+      try {
+        let response;
+        if (isOrganizer) {
+          response = event?.idEvento
+            ? await api.bloques.getByEvento(event.idEvento)
+            : await api.bloques.getAll();
+        } else {
+          response = event?.idEvento
+            ? await api.publico.getBloquesPublicosByEvento(event.idEvento)
+            : { data: [] };
+        }
+
+        const bloques = response.data;
+        const formatted = {};
+
+        bloques.forEach(b => {
+          const fechaBloque = new Date(b.fechaBloque);
+          const horaInicio = b.horaInicio.slice(0, 5);
+          const key = `${formatDateKey(fechaBloque)}-${horaInicio}`;
+
+          formatted[key] = {
+            idBloque: b.idBloque,
+            title: b.nombreBloque,
+            description: b.descripcion,
+            color: colorMap[b.color] || '#757575',
+            date: fechaBloque,
+            time: horaInicio
+          };
+        });
+
+        setEvents(formatted);
+      } catch (error) {
+        console.error('Error al cargar bloques:', error);
+        setEvents({});
       }
-
-      const bloques = response.data;
-      const formatted = {};
-
-      bloques.forEach(b => {
-        const fechaBloque = new Date(b.fechaBloque);
-        const horaInicio = b.horaInicio.slice(0, 5);
-        const key = `${formatDateKey(fechaBloque)}-${horaInicio}`;
-
-        formatted[key] = {
-          idBloque: b.idBloque,
-          title: b.nombreBloque,
-          description: b.descripcion,
-          color: colorMap[b.color] || '#757575',
-          date: fechaBloque,
-          time: horaInicio
-        };
-      });
-
-      setEvents(formatted);
-    } catch (error) {
-      console.error('Error al cargar bloques:', error);
-      setEvents({});
-    }
-  };
+    };
 
 
   useEffect(() => {

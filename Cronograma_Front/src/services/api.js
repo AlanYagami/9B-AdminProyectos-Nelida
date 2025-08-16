@@ -57,7 +57,7 @@ const api = {
 
   publico: {
     getEventosPublicos: () => apiPublicClient.get('/api/eventos/publico'),
-    getEventosPublicosByTipo: (id) => apiPublicClient.get(`/api/eventos/publico/${id}`),
+    getEventosPublicosById: (id) => apiPublicClient.get(`/api/eventos/publico/${id}`),
     getTiposEventosPublico: () => apiPublicClient.get('/api/tipos-evento/publico'),
     getTipoEventoPublicoById: (id) => apiPublicClient.get(`/api/tipos-evento/publico/${id}`),
     getBloquesPublicosByEvento: (idEvento) => apiPublicClient.get(`/api/bloques/publico/evento/${idEvento}`),
