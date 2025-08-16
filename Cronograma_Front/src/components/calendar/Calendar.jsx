@@ -24,11 +24,18 @@ function Calendar({ role = 'user', event }) {
 
   const selectedColorHex = colorMap[eventColor] || '#757575';
 
-  const fetchBloques = async () => {
+    const fetchBloques = async () => {
     try {
-      const response = event?.idEvento
-        ? await api.bloques.getByEvento(event.idEvento)
-        : await api.bloques.getAll();
+      let response;
+      if (isOrganizer) {
+        response = event?.idEvento
+          ? await api.bloques.getByEvento(event.idEvento)
+          : await api.bloques.getAll();
+      } else {
+        response = event?.idEvento
+          ? await api.publico.getBloquesPublicosByEvento(event.idEvento)
+          : { data: [] };
+      }
 
       const bloques = response.data;
       const formatted = {};
@@ -54,6 +61,7 @@ function Calendar({ role = 'user', event }) {
       setEvents({});
     }
   };
+
 
   useEffect(() => {
     fetchBloques();

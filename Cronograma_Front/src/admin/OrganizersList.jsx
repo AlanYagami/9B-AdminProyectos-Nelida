@@ -27,9 +27,14 @@ function OrganizersList() {
   const fetchOrganizadores = async () => {
     try {
       setLoading(true);
-      // Aquí usa tu endpoint real, por ejemplo:
       const response = await api.usuarios.getAll();
-      setOrganizadores(response.data || []);
+
+      // excluir rol 1
+      const organizadoresFiltrados = (response.data || []).filter(
+        user => user.rol?.idRol !== 1
+      );
+
+      setOrganizadores(organizadoresFiltrados);
       setError(null);
     } catch (err) {
       console.error("Error al cargar organizadores:", err);

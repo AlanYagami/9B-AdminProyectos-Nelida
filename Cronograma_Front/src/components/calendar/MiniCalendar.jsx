@@ -93,7 +93,7 @@ function MiniCalendar({ selectedDate, setSelectedDate, setCurrentWeek, events, e
       <QRModal
         show={showQRModal}
         onClose={() => setShowQRModal(false)}
-        eventoId={event?.id}
+        eventoId={event?.idEvento}
       />
 
       {/* Título del evento (fuera del scroll) */}
