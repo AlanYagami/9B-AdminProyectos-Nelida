@@ -1,10 +1,12 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-// por alguna razon NO SE CREA NADA con ciertos colores ni ANTES DE LAS 9:00
+import { useState, useEffect } from 'react';
+import * as Yup from 'yup';
+
 function EventModal({
   show,
   onClose,
   onSubmit,
-  onDelete, // ✅ nuevo
+  onDelete,
   eventTitle,
   setEventTitle,
   eventDescription,
@@ -15,9 +17,113 @@ function EventModal({
   isEditable,
   colors = [],
   onDownloadPDF,
-  editingBlock // ✅ saber si estamos editando
+  editingBlock
 }) {
+  const [errors, setErrors] = useState({});
+
+  // Esquema de validación con Yup
+  const validationSchema = Yup.object({
+    eventTitle: Yup.string()
+      .trim()
+      .matches(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9][a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s,.-]*[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]$|^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]$/, 'Usa un título válido (letras, números, espacios)')
+      .min(3, 'El título debe tener al menos 3 caracteres')
+      .max(50, 'El título no puede exceder 50 caracteres')
+      .required('El título es obligatorio'),
+    eventDescription: Yup.string()
+      .trim()
+      .min(5, 'La descripción debe tener al menos 5 caracteres')
+      .max(150, 'La descripción no puede exceder 150 caracteres')
+      .required('La descripción es obligatoria'),
+    eventColor: Yup.string()
+      .required('Debes seleccionar un color')
+  });
+
+  // Limpiar errores cuando se abra/cierre el modal
+  useEffect(() => {
+    if (show) {
+      setErrors({});
+    }
+  }, [show]);
+
+  const handleTitleChange = (e) => {
+    let value = e.target.value;
+
+    // Prevenir espacios al inicio y espacios múltiples
+    if (value.length === 1 && value === ' ') return;
+    value = value.replace(/\s{2,}/g, ' ');
+
+    setEventTitle(value);
+
+    // Limpiar error específico cuando el usuario empiece a escribir
+    if (errors.eventTitle) {
+      setErrors(prev => ({ ...prev, eventTitle: '' }));
+    }
+  };
+
+  const handleDescriptionChange = (e) => {
+    let value = e.target.value;
+
+    // Prevenir espacios al inicio y espacios múltiples
+    if (value.length === 1 && value === ' ') return;
+    value = value.replace(/\s{2,}/g, ' ');
+
+    setEventDescription(value);
+
+    // Limpiar error específico cuando el usuario empiece a escribir
+    if (errors.eventDescription) {
+      setErrors(prev => ({ ...prev, eventDescription: '' }));
+    }
+  };
+
+  const handleColorChange = (e) => {
+    setEventColor(e.target.value);
+
+    // Limpiar error específico cuando el usuario seleccione
+    if (errors.eventColor) {
+      setErrors(prev => ({ ...prev, eventColor: '' }));
+    }
+  };
+
+  const handleTitleBlur = (e) => {
+    setEventTitle(e.target.value.trim());
+  };
+
+  const handleDescriptionBlur = (e) => {
+    setEventDescription(e.target.value.trim());
+  };
+
+  const handleSubmit = async () => {
+    try {
+      // Validar con Yup
+      await validationSchema.validate({
+        eventTitle: eventTitle.trim(),
+        eventDescription: eventDescription.trim(),
+        eventColor
+      }, { abortEarly: false });
+
+      setErrors({}); // Limpiar errores si la validación pasa
+      onSubmit(); // Llamar la función original de submit
+
+    } catch (error) {
+      if (error.name === 'ValidationError') {
+        // Errores de validación
+        const validationErrors = {};
+        error.inner.forEach(err => {
+          validationErrors[err.path] = err.message;
+        });
+        setErrors(validationErrors);
+      }
+    }
+  };
+
   if (!show || !selectedSlot) return null;
+
+  const errorStyle = {
+    color: '#ff6b6b',
+    fontSize: '0.875rem',
+    marginTop: '0.25rem',
+    marginBottom: '0.5rem',
+  };
 
   return (
     <div className="modal show d-block bg-dark bg-opacity-50">
@@ -42,9 +148,10 @@ function EventModal({
                     className="form-control custom-input"
                     placeholder="Título del evento"
                     value={eventTitle}
-                    maxLength={10}
-                    onChange={(e) => setEventTitle(e.target.value)}
+                    onChange={handleTitleChange}
+                    onBlur={handleTitleBlur}
                   />
+                  {errors.eventTitle && <div style={errorStyle}>{errors.eventTitle}</div>}
                 </div>
 
                 <div className="mb-3">
@@ -54,9 +161,10 @@ function EventModal({
                     rows="3"
                     placeholder="Descripción del evento"
                     value={eventDescription}
-                    maxLength={27}
-                    onChange={(e) => setEventDescription(e.target.value)}
+                    onChange={handleDescriptionChange}
+                    onBlur={handleDescriptionBlur}
                   />
+                  {errors.eventDescription && <div style={errorStyle}>{errors.eventDescription}</div>}
                 </div>
 
                 <div className="mb-3">
@@ -64,7 +172,7 @@ function EventModal({
                   <select
                     className="form-select custom-select"
                     value={eventColor}
-                    onChange={(e) => setEventColor(e.target.value)}
+                    onChange={handleColorChange}
                   >
                     <option value="">Seleccione un color</option>
                     {colors.map((color) => (
@@ -73,6 +181,7 @@ function EventModal({
                       </option>
                     ))}
                   </select>
+                  {errors.eventColor && <div style={errorStyle}>{errors.eventColor}</div>}
                 </div>
               </>
             ) : (
@@ -103,14 +212,13 @@ function EventModal({
                 Cerrar
               </button>
               {isEditable && (
-                <button className="btn btn-primary custom-btn-primary" onClick={onSubmit}>
+                <button className="btn btn-primary custom-btn-primary" onClick={handleSubmit}>
                   Guardar
                 </button>
               )}
             </div>
           </div>
 
-          {/* 🎨 Tus estilos originales, intactos */}
           <style jsx="true">{`
             .custom-modal-dialog {
               max-width: 600px;

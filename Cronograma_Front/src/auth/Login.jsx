@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import * as Yup from 'yup';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -13,34 +14,43 @@ function Login() {
     contrasena: '',
   });
 
+  const [errors, setErrors] = useState({});
+
+  // Esquema de validación con Yup
+  const validationSchema = Yup.object({
+    correo: Yup.string()
+      .email('Ingresa un correo electrónico válido')
+      .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'El formato del correo no es válido')
+      .required('El correo electrónico es obligatorio'),
+    contrasena: Yup.string()
+      .min(1, 'La contraseña es obligatoria')
+      .required('La contraseña es obligatoria')
+  });
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+
+    // Limpiar error específico cuando el usuario empiece a escribir
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
   };
 
   const handleSubmit = async () => {
-    const { correo, contrasena } = formData;
-
-    if (!correo || !contrasena) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Campos incompletos',
-        text: 'Por favor, llena ambos campos',
-        confirmButtonColor: '#667eea',
-        background: '#2c2c2c',
-        color: 'white'
-      });
-      return;
-    }
-
     try {
-      const response =await api.auth.login({
-        correo,
-        contra: contrasena,
+      // Validar con Yup
+      await validationSchema.validate(formData, { abortEarly: false });
+
+      setErrors({}); // Limpiar errores si la validación pasa
+
+      const response = await api.auth.login({
+        correo: formData.correo,
+        contra: formData.contrasena,
       });
 
       const token = response.data.data;
-      const userRole = login(token); 
+      const userRole = login(token);
 
       Swal.fire({
         icon: 'success',
@@ -59,7 +69,24 @@ function Login() {
         }
       });
     } catch (error) {
+      if (error.name === 'ValidationError') {
+        // Errores de validación
+        const validationErrors = {};
+        error.inner.forEach(err => {
+          validationErrors[err.path] = err.message;
+        });
+        setErrors(validationErrors);
 
+        Swal.fire({
+          icon: 'warning',
+          title: 'Datos inválidos',
+          text: 'Por favor, corrige los errores en el formulario',
+          confirmButtonColor: '#667eea',
+          background: '#2c2c2c',
+          color: 'white'
+        });
+      }
+      // El error del API ya es manejado por el interceptor
     }
   };
 
@@ -89,7 +116,13 @@ function Login() {
     borderRadius: '8px',
     color: 'white',
     padding: '12px 16px',
-    marginBottom: '1rem'
+    marginBottom: '0.5rem'
+  };
+
+  const errorStyle = {
+    color: '#ff6b6b',
+    fontSize: '0.875rem',
+    marginBottom: '1rem',
   };
 
   const buttonStyle = {
@@ -149,6 +182,7 @@ function Login() {
                     value={formData.correo}
                     onChange={handleChange}
                   />
+                  {errors.correo && <div style={errorStyle}>{errors.correo}</div>}
                 </div>
 
                 <div className="mb-3">
@@ -162,6 +196,7 @@ function Login() {
                     value={formData.contrasena}
                     onChange={handleChange}
                   />
+                  {errors.contrasena && <div style={errorStyle}>{errors.contrasena}</div>}
                 </div>
 
                 <button

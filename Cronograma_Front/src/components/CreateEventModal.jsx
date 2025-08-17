@@ -1,11 +1,54 @@
 import React, { useState, useEffect } from "react";
+import * as Yup from 'yup';
 import api from "./../services/api";
 import { Modal, Button, Form, Row, Col } from "react-bootstrap";
 
 function CreateEventModal({ show, onClose, onRegister }) {
   const [tiposEvento, setTiposEvento] = useState([]);
   const [duracionHoras, setDuracionHoras] = useState(0);
+  const [errors, setErrors] = useState({});
   const usuarioId = localStorage.getItem("userId");
+
+  // Esquema de validación con Yup
+  const validationSchema = Yup.object({
+    nombreEvento: Yup.string()
+      .trim()
+      .matches(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9][a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s,.-]*[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]$|^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]$/, 'Usa un nombre válido (letras, números, comas, puntos, guiones)')
+      .min(3, 'El nombre debe tener al menos 3 caracteres')
+      .max(100, 'El nombre no puede exceder 100 caracteres')
+      .required('El nombre del evento es obligatorio'),
+    descripcionEvento: Yup.string()
+      .trim()
+      .min(10, 'La descripción debe tener al menos 10 caracteres')
+      .max(500, 'La descripción no puede exceder 500 caracteres')
+      .required('La descripción es obligatoria'),
+    tipoEventoId: Yup.string()
+      .required('Debes seleccionar un tipo de evento'),
+    fechaInicio: Yup.date()
+      .min(new Date().toDateString(), 'La fecha de inicio no puede ser anterior a hoy')
+      .required('La fecha de inicio es obligatoria'),
+    fechaFin: Yup.date()
+      .min(Yup.ref('fechaInicio'), 'La fecha de fin debe ser posterior o igual a la fecha de inicio')
+      .required('La fecha de fin es obligatoria'),
+    horaInicio: Yup.string()
+      .matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Selecciona una hora válida')
+      .required('La hora de inicio es obligatoria'),
+    horaFin: Yup.string()
+      .matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Selecciona una hora válida')
+      .required('La hora de fin es obligatoria'),
+    ubicacion: Yup.string()
+      .trim()
+      .matches(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9][a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s,.-]*[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]$|^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]$/, 'Usa una ubicación válida')
+      .min(3, 'La ubicación debe tener al menos 3 caracteres')
+      .max(100, 'La ubicación no puede exceder 100 caracteres')
+      .required('La ubicación es obligatoria'),
+    responsable: Yup.string()
+      .trim()
+      .matches(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ][a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*[a-zA-ZáéíóúÁÉÍÓÚñÑ]$|^[a-zA-ZáéíóúÁÉÍÓÚñÑ]$/, 'Usa un nombre válido (solo letras)')
+      .min(3, 'El nombre del responsable debe tener al menos 3 caracteres')
+      .max(50, 'El nombre no puede exceder 50 caracteres')
+      .required('El nombre del responsable es obligatorio')
+  });
 
   const calcularDuracion = (inicioFecha, inicioHora, finFecha, finHora) => {
     if (inicioFecha && inicioHora && finFecha && finHora) {
@@ -22,15 +65,18 @@ function CreateEventModal({ show, onClose, onRegister }) {
   };
 
   useEffect(() => {
-  if (show) {
-    api.tipoEvento
-      .getAll()
-      .then((res) => {
-        setTiposEvento(res.data);
-      })
-      .catch((err) => console.error("Error al cargar tipos de evento", err));
-  }
-}, [show]);
+    if (show) {
+      api.tipoEvento
+        .getAll()
+        .then((res) => {
+          setTiposEvento(res.data);
+        })
+        .catch((err) => console.error("Error al cargar tipos de evento", err));
+
+      // Limpiar errores al abrir el modal
+      setErrors({});
+    }
+  }, [show]);
 
   const [formData, setFormData] = useState({
     nombreEvento: "",
@@ -46,46 +92,106 @@ function CreateEventModal({ show, onClose, onRegister }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    const updatedForm = { ...formData, [name]: value };
+    let processedValue = value;
+
+    // Procesamiento específico para diferentes campos
+    if (name === 'nombreEvento' || name === 'ubicacion') {
+      // Evitar espacios al inicio y espacios múltiples
+      if (value.length === 1 && value === ' ') return;
+      processedValue = value.replace(/\s{2,}/g, ' ');
+    } else if (name === 'responsable') {
+      // Solo letras y espacios, sin espacios al inicio
+      if (value.length === 1 && value === ' ') return;
+      processedValue = value.replace(/\s{2,}/g, ' ').replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+    } else if (name === 'horaInicio' || name === 'horaFin') {
+      // Mantener el valor tal como viene del input time
+      processedValue = value;
+    }
+
+    const updatedForm = { ...formData, [name]: processedValue };
     setFormData(updatedForm);
 
+    // Limpiar error específico cuando el usuario empiece a escribir
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+
     calcularDuracion(
-      name === "fechaInicio" ? value : formData.fechaInicio,
-      name === "horaInicio" ? value : formData.horaInicio,
-      name === "fechaFin" ? value : formData.fechaFin,
-      name === "horaFin" ? value : formData.horaFin
+      name === "fechaInicio" ? processedValue : formData.fechaInicio,
+      name === "horaInicio" ? processedValue : formData.horaInicio,
+      name === "fechaFin" ? processedValue : formData.fechaFin,
+      name === "horaFin" ? processedValue : formData.horaFin
     );
   };
 
-  const handleSubmit = () => {
-    // Formatear horas para que tengan el formato HH:mm:ss
-    const horaInicioFormato = formData.horaInicio.length === 5
-      ? `${formData.horaInicio}:00`
-      : formData.horaInicio;
-
-    const horaFinFormato = formData.horaFin.length === 5
-      ? `${formData.horaFin}:00`
-      : formData.horaFin;
-
-    // Construir el payload exactamente como en Postman
-    const payload = {
-      nombreEvento: formData.nombreEvento,
-      descripcionEvento: formData.descripcionEvento,
-      fechaInicio: `${formData.fechaInicio}T${horaInicioFormato}`,
-      fechaFin: `${formData.fechaFin}T${horaFinFormato}`,
-      horaInicio: horaInicioFormato,
-      horaFin: horaFinFormato,
-      numHoras: parseFloat(duracionHoras),
-      responsable: formData.responsable,
-      ubicacion: formData.ubicacion,
-      estado: { idEstado: 1 },
-      tipoEvento: { idTipoEvento: parseInt(formData.tipoEventoId) },
-      usuario: { idUsuario: parseInt(usuarioId) }
-    };
-
-    onRegister(payload);
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    // Limpiar espacios al final en campos de texto
+    if (['nombreEvento', 'ubicacion', 'responsable'].includes(name)) {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value.trim()
+      }));
+    }
   };
 
+  const handleSubmit = async () => {
+    try {
+      // Validar con Yup
+      await validationSchema.validate(formData, { abortEarly: false });
+
+      // Validación adicional para duración
+      if (duracionHoras <= 0) {
+        setErrors({ general: 'La duración del evento debe ser mayor a 0 horas' });
+        return;
+      }
+
+      setErrors({}); // Limpiar errores si la validación pasa
+
+      // Formatear horas para que tengan el formato HH:mm:ss
+      const horaInicioFormato = formData.horaInicio.length === 5
+        ? `${formData.horaInicio}:00`
+        : formData.horaInicio;
+
+      const horaFinFormato = formData.horaFin.length === 5
+        ? `${formData.horaFin}:00`
+        : formData.horaFin;
+
+      // Construir el payload exactamente como en Postman
+      const payload = {
+        nombreEvento: formData.nombreEvento.trim(),
+        descripcionEvento: formData.descripcionEvento.trim(),
+        fechaInicio: `${formData.fechaInicio}T${horaInicioFormato}`,
+        fechaFin: `${formData.fechaFin}T${horaFinFormato}`,
+        horaInicio: horaInicioFormato,
+        horaFin: horaFinFormato,
+        numHoras: parseFloat(duracionHoras),
+        responsable: formData.responsable.trim(),
+        ubicacion: formData.ubicacion.trim(),
+        estado: { idEstado: 1 },
+        tipoEvento: { idTipoEvento: parseInt(formData.tipoEventoId) },
+        usuario: { idUsuario: parseInt(usuarioId) }
+      };
+
+      onRegister(payload);
+    } catch (error) {
+      if (error.name === 'ValidationError') {
+        // Errores de validación
+        const validationErrors = {};
+        error.inner.forEach(err => {
+          validationErrors[err.path] = err.message;
+        });
+        setErrors(validationErrors);
+      }
+    }
+  };
+
+  const errorStyle = {
+    color: '#ff6b6b',
+    fontSize: '0.875rem',
+    marginTop: '0.25rem',
+    marginBottom: '0.5rem',
+  };
 
   return (
     <Modal
@@ -100,6 +206,8 @@ function CreateEventModal({ show, onClose, onRegister }) {
       </Modal.Header>
       <Modal.Body>
         <Form>
+          {errors.general && <div style={{ ...errorStyle, textAlign: 'center', marginBottom: '1rem' }}>{errors.general}</div>}
+
           <Form.Group className="mb-3">
             <Form.Label className="text-white">Nombre del evento</Form.Label>
             <Form.Control
@@ -107,9 +215,11 @@ function CreateEventModal({ show, onClose, onRegister }) {
               name="nombreEvento"
               value={formData.nombreEvento}
               onChange={handleChange}
+              onBlur={handleBlur}
               placeholder="Ej. Fiesta de apertura"
               className="custom-input"
             />
+            {errors.nombreEvento && <div style={errorStyle}>{errors.nombreEvento}</div>}
           </Form.Group>
 
           <Form.Group className="mb-3">
@@ -121,7 +231,9 @@ function CreateEventModal({ show, onClose, onRegister }) {
               onChange={handleChange}
               placeholder="Escribe la descripción del evento"
               className="custom-input"
+              rows={3}
             />
+            {errors.descripcionEvento && <div style={errorStyle}>{errors.descripcionEvento}</div>}
           </Form.Group>
 
           <Form.Group className="mb-3">
@@ -139,6 +251,7 @@ function CreateEventModal({ show, onClose, onRegister }) {
                 </option>
               ))}
             </Form.Select>
+            {errors.tipoEventoId && <div style={errorStyle}>{errors.tipoEventoId}</div>}
           </Form.Group>
 
           <Row className="mb-3">
@@ -151,6 +264,7 @@ function CreateEventModal({ show, onClose, onRegister }) {
                 onChange={handleChange}
                 className="custom-input"
               />
+              {errors.fechaInicio && <div style={errorStyle}>{errors.fechaInicio}</div>}
             </Col>
             <Col>
               <Form.Label className="text-white">Día fin</Form.Label>
@@ -161,6 +275,7 @@ function CreateEventModal({ show, onClose, onRegister }) {
                 onChange={handleChange}
                 className="custom-input"
               />
+              {errors.fechaFin && <div style={errorStyle}>{errors.fechaFin}</div>}
             </Col>
           </Row>
 
@@ -174,6 +289,7 @@ function CreateEventModal({ show, onClose, onRegister }) {
                 onChange={handleChange}
                 className="custom-input"
               />
+              {errors.horaInicio && <div style={errorStyle}>{errors.horaInicio}</div>}
             </Col>
             <Col>
               <Form.Label className="text-white">Hora fin</Form.Label>
@@ -184,6 +300,7 @@ function CreateEventModal({ show, onClose, onRegister }) {
                 onChange={handleChange}
                 className="custom-input"
               />
+              {errors.horaFin && <div style={errorStyle}>{errors.horaFin}</div>}
             </Col>
           </Row>
 
@@ -204,9 +321,11 @@ function CreateEventModal({ show, onClose, onRegister }) {
               name="ubicacion"
               value={formData.ubicacion}
               onChange={handleChange}
+              onBlur={handleBlur}
               placeholder="Ej. Auditorio Central"
               className="custom-input"
             />
+            {errors.ubicacion && <div style={errorStyle}>{errors.ubicacion}</div>}
           </Form.Group>
 
           <Form.Group className="mb-4">
@@ -216,9 +335,11 @@ function CreateEventModal({ show, onClose, onRegister }) {
               name="responsable"
               value={formData.responsable}
               onChange={handleChange}
+              onBlur={handleBlur}
               placeholder="Ej. Juan Pérez"
               className="custom-input"
             />
+            {errors.responsable && <div style={errorStyle}>{errors.responsable}</div>}
           </Form.Group>
 
           <div className="d-flex justify-content-between align-items-center">
@@ -241,7 +362,6 @@ function CreateEventModal({ show, onClose, onRegister }) {
                 padding: "6px 20px",
               }}
               onClick={handleSubmit}
-              disabled={duracionHoras <= 0}
             >
               Registrar evento
             </Button>
@@ -277,6 +397,10 @@ function CreateEventModal({ show, onClose, onRegister }) {
           border-color: #764BA2;
           color: white;
           box-shadow: 0 0 8px #764BA2;
+        }
+        .custom-input option {
+          background-color: #2a2a3d;
+          color: white;
         }
         @media (max-width: 576px) {
           .custom-modal .modal-dialog {
