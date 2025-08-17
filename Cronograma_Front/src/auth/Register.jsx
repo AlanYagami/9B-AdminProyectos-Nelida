@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import Swal from 'sweetalert2';
+import * as Yup from 'yup';
 import api from '../services/api';
 
 function Register() {
@@ -13,43 +14,77 @@ function Register() {
     repetirContrasena: '',
   });
 
+  const [errors, setErrors] = useState({});
+
+  // Esquema de validación con Yup
+  // Esquema de validación con Yup
+  const validationSchema = Yup.object({
+    nombre: Yup.string()
+      .transform((value) => (value ? value.trim().replace(/\s{2,}/g, ' ') : '')) // trim y eliminar dobles espacios
+      .matches(
+        /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+(?: [A-Za-zÁÉÍÓÚáéíóúÑñ]+){0,2}$/,
+        'Solo se permiten hasta 3 nombres, sin espacios dobles ni al inicio o final'
+      )
+      .min(3, 'El nombre debe tener al menos 3 caracteres')
+      .required('El nombre es obligatorio'),
+    correo: Yup.string()
+      .transform((value) => (value ? value.trim() : ''))
+      .email('Ingresa un correo electrónico válido')
+      .matches(
+        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+        'El formato del correo no es válido'
+      )
+      .required('El correo electrónico es obligatorio'),
+    contrasena: Yup.string()
+      .transform((value) => (value ? value.trim() : ''))
+      .min(8, 'La contraseña debe tener al menos 8 caracteres')
+      .matches(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+        'Debe contener al menos una mayúscula, una minúscula y un número'
+      )
+      .required('La contraseña es obligatoria'),
+    repetirContrasena: Yup.string()
+      .oneOf([Yup.ref('contrasena')], 'Las contraseñas deben coincidir')
+      .required('Confirma tu contraseña')
+  });
+
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    let processedValue = value;
+
+    if (name === 'nombre') {
+      // Quitar espacios dobles
+      processedValue = processedValue.replace(/\s{2,}/g, ' ');
+      // Quitar espacio al inicio
+      if (processedValue.startsWith(' ')) {
+        processedValue = processedValue.trimStart();
+      }
+      // Quitar espacio al final
+      if (processedValue.endsWith(' ')) {
+        processedValue = processedValue.trimEnd();
+      }
+    }
+
+    setFormData(prev => ({ ...prev, [name]: processedValue }));
+
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
   };
 
+
   const handleSubmit = async () => {
-    const { nombre, correo, contrasena, repetirContrasena } = formData;
-
-    if (!nombre || !correo || !contrasena || !repetirContrasena) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Campos incompletos',
-        text: 'Por favor, llena todos los campos',
-        confirmButtonColor: '#667eea',
-        background: '#2c2c2c',
-        color: 'white'
-      });
-      return;
-    }
-
-    if (contrasena !== repetirContrasena) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Contraseñas no coinciden',
-        text: 'Asegúrate de que ambas contraseñas sean iguales',
-        confirmButtonColor: '#667eea',
-        background: '#2c2c2c',
-        color: 'white'
-      });
-      return;
-    }
-
     try {
+      // Validar con Yup
+      await validationSchema.validate(formData, { abortEarly: false });
+
+      setErrors({}); // Limpiar errores si la validación pasa
+
       await api.auth.register({
-        nombre,
-        correo,
-        contra: contrasena,
+        nombre: formData.nombre,
+        correo: formData.correo,
+        contra: formData.contrasena,
         rol: { idRol: 2 }
       });
 
@@ -63,7 +98,24 @@ function Register() {
       }).then(() => navigate('/login'));
 
     } catch (error) {
-      // El error ya es manejado automáticamente por el interceptor
+      if (error.name === 'ValidationError') {
+        // Errores de validación
+        const validationErrors = {};
+        error.inner.forEach(err => {
+          validationErrors[err.path] = err.message;
+        });
+        setErrors(validationErrors);
+
+        Swal.fire({
+          icon: 'warning',
+          title: 'Datos inválidos',
+          text: 'Por favor, corrige los errores en el formulario',
+          confirmButtonColor: '#667eea',
+          background: '#2c2c2c',
+          color: 'white'
+        });
+      }
+      // El error del API ya es manejado automáticamente por el interceptor
     }
   };
 
@@ -93,7 +145,13 @@ function Register() {
     borderRadius: '8px',
     color: 'white',
     padding: '12px 16px',
-    marginBottom: '1rem'
+    marginBottom: '0.5rem'
+  };
+
+  const errorStyle = {
+    color: '#ff6b6b',
+    fontSize: '0.875rem',
+    marginBottom: '1rem',
   };
 
   const buttonStyle = {
@@ -151,6 +209,7 @@ function Register() {
                     value={formData.nombre}
                     onChange={handleChange}
                   />
+                  {errors.nombre && <div style={errorStyle}>{errors.nombre}</div>}
                 </div>
 
                 <div className="mb-3">
@@ -164,6 +223,7 @@ function Register() {
                     value={formData.correo}
                     onChange={handleChange}
                   />
+                  {errors.correo && <div style={errorStyle}>{errors.correo}</div>}
                 </div>
 
                 <div className="mb-3">
@@ -177,6 +237,7 @@ function Register() {
                     value={formData.contrasena}
                     onChange={handleChange}
                   />
+                  {errors.contrasena && <div style={errorStyle}>{errors.contrasena}</div>}
                 </div>
 
                 <div className="mb-3">
@@ -190,6 +251,7 @@ function Register() {
                     value={formData.repetirContrasena}
                     onChange={handleChange}
                   />
+                  {errors.repetirContrasena && <div style={errorStyle}>{errors.repetirContrasena}</div>}
                 </div>
 
                 <button

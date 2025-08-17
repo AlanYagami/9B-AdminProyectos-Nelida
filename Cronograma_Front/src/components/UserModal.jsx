@@ -1,10 +1,35 @@
 import { useState, useEffect } from "react";
+import * as Yup from 'yup';
 
 function UserModal({ show, onClose, onSubmit, userData }) {
   const [formData, setFormData] = useState({
     nombre: "",
     correo: "",
   });
+
+  const [errors, setErrors] = useState({});
+
+  // Esquema de validación con Yup
+  const validationSchema = Yup.object({
+    nombre: Yup.string()
+      .transform((value) => (value ? value.trim() : "")) // fuerza trim antes de validar
+      .matches(
+        /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+(?: [A-Za-zÁÉÍÓÚáéíóúÑñ]+){0,2}$/,
+        'Solo se permiten hasta 3 nombres, sin espacios dobles, ni al inicio o final'
+      )
+      .min(3, 'El nombre debe tener al menos 3 caracteres')
+      .required('El nombre es obligatorio'),
+    correo: Yup.string()
+      .transform((value) => (value ? value.trim() : ""))
+      .email('Ingresa un correo electrónico válido')
+      .matches(
+        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+        'El formato del correo no es válido'
+      )
+      .required('El correo electrónico es obligatorio'),
+  });
+
+
 
   useEffect(() => {
     if (userData) {
@@ -13,17 +38,59 @@ function UserModal({ show, onClose, onSubmit, userData }) {
         correo: userData.correo || "",
       });
     }
-  }, [userData]);
+    // Limpiar errores cuando se abre el modal
+    setErrors({});
+  }, [userData, show]);
 
   if (!show) return null;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Para el nombre, prevenir espacios al inicio
+    let processedValue = value;
+    if (name === 'nombre') {
+      // No permitir que el primer carácter sea un espacio
+      if (value.length === 1 && value === ' ') {
+        return; // No actualizar el estado si es solo un espacio
+      }
+      // No permitir espacios dobles o triples
+      processedValue = value.replace(/\s{2,}/g, ' ');
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: processedValue }));
+
+    // Limpiar error específico cuando el usuario empiece a escribir
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
   };
 
-  const handleSave = () => {
-    onSubmit(formData);
+  const handleSave = async () => {
+    try {
+      // Validar con Yup
+      await validationSchema.validate(formData, { abortEarly: false });
+
+      setErrors({}); // Limpiar errores si la validación pasa
+      onSubmit(formData); // Enviar datos si todo está correcto
+
+    } catch (error) {
+      if (error.name === 'ValidationError') {
+        // Errores de validación
+        const validationErrors = {};
+        error.inner.forEach(err => {
+          validationErrors[err.path] = err.message;
+        });
+        setErrors(validationErrors);
+      }
+    }
+  };
+
+  const errorStyle = {
+    color: '#ff6b6b',
+    fontSize: '0.875rem',
+    marginTop: '0.25rem',
+    marginBottom: '0.5rem',
   };
 
   return (
@@ -46,6 +113,7 @@ function UserModal({ show, onClose, onSubmit, userData }) {
                 value={formData.nombre}
                 onChange={handleChange}
               />
+              {errors.nombre && <div style={errorStyle}>{errors.nombre}</div>}
             </div>
 
             <div className="mb-3">
@@ -58,6 +126,7 @@ function UserModal({ show, onClose, onSubmit, userData }) {
                 value={formData.correo}
                 onChange={handleChange}
               />
+              {errors.correo && <div style={errorStyle}>{errors.correo}</div>}
             </div>
           </div>
 
@@ -130,4 +199,4 @@ function UserModal({ show, onClose, onSubmit, userData }) {
   );
 }
 
-export default UserModal;
+export default UserModal; 

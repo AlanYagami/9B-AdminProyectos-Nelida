@@ -1,13 +1,50 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api'; // Asegúrate de importar el servicio API
+import * as Yup from 'yup';
+import api from '../services/api';
 
 function ForgotPassword() {
-  const [email, setEmail] = useState(''); // Estado para el correo electrónico
-  const [loading, setLoading] = useState(false); // Estado para saber si estamos esperando la respuesta de la API
-  const [error, setError] = useState(null); // Estado para mostrar errores
-  const [success, setSuccess] = useState(false); // Estado para mostrar mensaje de éxito
-  const [formError, setFormError] = useState(''); // Estado para los errores del formulario
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+  const [validationError, setValidationError] = useState('');
+
+  const navigate = useNavigate();
+
+  // Esquema de validación con Yup
+  const validationSchema = Yup.object({
+    email: Yup.string()
+      .trim() // Elimina espacios al inicio y al final automáticamente
+      .email('Ingresa un correo electrónico válido')
+      .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'El formato del correo no es válido')
+      .required('El correo electrónico es obligatorio')
+  });
+
+  const handleForgotPassword = async () => {
+    setValidationError('');
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+
+    try {
+      // Validar con Yup
+      await validationSchema.validate({ email }, { abortEarly: false });
+
+      const response = await api.auth.forgotPassword(email);
+      setSuccess(true);
+    } catch (error) {
+      if (error.name === 'ValidationError') {
+        // Error de validación
+        setValidationError(error.errors[0]);
+      } else {
+        // Error del API
+        setError('Hubo un error al enviar la solicitud. Por favor, inténtalo nuevamente.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const containerStyle = {
     minHeight: '100vh',
@@ -35,6 +72,18 @@ function ForgotPassword() {
     borderRadius: '8px',
     color: 'white',
     padding: '12px 16px',
+    marginBottom: '0.5rem',
+  };
+
+  const errorStyle = {
+    color: '#ff6b6b',
+    fontSize: '0.875rem',
+    marginBottom: '1rem',
+  };
+
+  const successStyle = {
+    color: '#51cf66',
+    fontSize: '0.875rem',
     marginBottom: '1rem',
   };
 
@@ -53,46 +102,8 @@ function ForgotPassword() {
     fontSize: '0.9rem',
   };
 
-  const logoStyle = {
-    width: '50px',
-    height: '50px',
-    background: 'linear-gradient(45deg, #667eea, #764ba2)',
-    borderRadius: '10px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    margin: '0 auto 1.5rem auto',
-    fontSize: '24px',
-    fontWeight: 'bold',
-  };
-
-  const navigate = useNavigate();
-
   const goToLogin = () => {
     navigate('/login');
-  };
-
-  const handleForgotPassword = async () => {
-    setFormError(''); // Limpiar errores previos del formulario
-    setLoading(true); // Habilitamos el estado de carga
-    setError(null); // Reseteamos cualquier error previo
-    setSuccess(false); // Reseteamos el estado de éxito
-
-    // Validación de formulario (campo obligatorio)
-    if (!email) {
-      setFormError('Por favor, ingresa tu correo electrónico.');
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const response = await api.auth.forgotPassword(email); // Llamada a la API para recuperar la contraseña
-      setSuccess(true); // Si la solicitud es exitosa, actualizamos el estado de éxito
-    } catch (error) {
-      setError('Hubo un error al enviar la solicitud. Por favor, inténtalo nuevamente.'); // Manejo de errores
-    } finally {
-      setLoading(false); // Finalizamos el estado de carga
-    }
   };
 
   return (
@@ -107,21 +118,15 @@ function ForgotPassword() {
               </p>
 
               {success && (
-                <p style={{ color: 'green', marginBottom: '1rem' }}>
+                <div style={successStyle}>
                   ¡Revisa tu correo! Te hemos enviado un enlace para recuperar tu contraseña.
-                </p>
+                </div>
               )}
 
               {error && (
-                <p style={{ color: 'red', marginBottom: '1rem' }}>
+                <div style={errorStyle}>
                   {error}
-                </p>
-              )}
-
-              {formError && (
-                <p style={{ color: 'red', marginBottom: '1rem' }}>
-                  {formError}
-                </p>
+                </div>
               )}
 
               <div>
@@ -133,16 +138,20 @@ function ForgotPassword() {
                     placeholder="ejemplo@org.mx"
                     style={inputStyle}
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)} // Actualiza el estado con el valor del input
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setValidationError(''); // Limpiar error cuando el usuario escriba
+                    }}
                   />
+                  {validationError && <div style={errorStyle}>{validationError}</div>}
                 </div>
 
                 <button
                   type="button"
                   className="btn btn-primary mb-3"
                   style={buttonStyle}
-                  onClick={handleForgotPassword} // Llamamos a la función cuando el usuario hace click
-                  disabled={loading} // Deshabilitamos el botón mientras estamos esperando la respuesta de la API
+                  onClick={handleForgotPassword}
+                  disabled={loading}
                 >
                   {loading ? 'Enviando...' : 'Enviar'}
                 </button>
