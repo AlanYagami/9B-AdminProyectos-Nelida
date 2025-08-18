@@ -17,7 +17,11 @@ function ForgotPassword() {
     email: Yup.string()
       .trim() // Elimina espacios al inicio y al final automáticamente
       .email('Ingresa un correo electrónico válido')
-      .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'El formato del correo no es válido')
+      .matches(
+        /^[a-zA-Z0-9]+(?:[._%+-][a-zA-Z0-9]+)*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+        'El formato del correo no es válido'
+      )
+      .matches(/^[^<>/;"'`\\]*$/, 'El correo contiene caracteres inválidos')
       .required('El correo electrónico es obligatorio')
   });
 

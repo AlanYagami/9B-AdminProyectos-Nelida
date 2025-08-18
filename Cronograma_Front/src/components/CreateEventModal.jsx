@@ -1,54 +1,28 @@
 import React, { useState, useEffect } from "react";
-import * as Yup from 'yup';
+import { eventoSchema } from "../validations/eventSchema";
 import api from "./../services/api";
 import { Modal, Button, Form, Row, Col } from "react-bootstrap";
 
-function CreateEventModal({ show, onClose, onRegister }) {
+function CreateEventModal({ show, onClose, onRegister, onUpdate, evento = null }) {
   const [tiposEvento, setTiposEvento] = useState([]);
   const [duracionHoras, setDuracionHoras] = useState(0);
   const [errors, setErrors] = useState({});
   const usuarioId = localStorage.getItem("userId");
 
-  // Esquema de validación con Yup
-  const validationSchema = Yup.object({
-    nombreEvento: Yup.string()
-      .trim()
-      .matches(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9][a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s,.-]*[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]$|^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]$/, 'Usa un nombre válido (letras, números, comas, puntos, guiones)')
-      .min(3, 'El nombre debe tener al menos 3 caracteres')
-      .max(100, 'El nombre no puede exceder 100 caracteres')
-      .required('El nombre del evento es obligatorio'),
-    descripcionEvento: Yup.string()
-      .trim()
-      .min(10, 'La descripción debe tener al menos 10 caracteres')
-      .max(500, 'La descripción no puede exceder 500 caracteres')
-      .required('La descripción es obligatoria'),
-    tipoEventoId: Yup.string()
-      .required('Debes seleccionar un tipo de evento'),
-    fechaInicio: Yup.date()
-      .min(new Date().toDateString(), 'La fecha de inicio no puede ser anterior a hoy')
-      .required('La fecha de inicio es obligatoria'),
-    fechaFin: Yup.date()
-      .min(Yup.ref('fechaInicio'), 'La fecha de fin debe ser posterior o igual a la fecha de inicio')
-      .required('La fecha de fin es obligatoria'),
-    horaInicio: Yup.string()
-      .matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Selecciona una hora válida')
-      .required('La hora de inicio es obligatoria'),
-    horaFin: Yup.string()
-      .matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Selecciona una hora válida')
-      .required('La hora de fin es obligatoria'),
-    ubicacion: Yup.string()
-      .trim()
-      .matches(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9][a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s,.-]*[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]$|^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]$/, 'Usa una ubicación válida')
-      .min(3, 'La ubicación debe tener al menos 3 caracteres')
-      .max(100, 'La ubicación no puede exceder 100 caracteres')
-      .required('La ubicación es obligatoria'),
-    responsable: Yup.string()
-      .trim()
-      .matches(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ][a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*[a-zA-ZáéíóúÁÉÍÓÚñÑ]$|^[a-zA-ZáéíóúÁÉÍÓÚñÑ]$/, 'Usa un nombre válido (solo letras)')
-      .min(3, 'El nombre del responsable debe tener al menos 3 caracteres')
-      .max(50, 'El nombre no puede exceder 50 caracteres')
-      .required('El nombre del responsable es obligatorio')
+  const [formData, setFormData] = useState({
+    nombreEvento: "",
+    descripcionEvento: "",
+    tipoEventoId: "",
+    fechaInicio: "",
+    horaInicio: "",
+    fechaFin: "",
+    horaFin: "",
+    ubicacion: "",
+    responsable: ""
   });
+
+  // Esquema de validación con Yup
+  const validationSchema = eventoSchema;
 
   const calcularDuracion = (inicioFecha, inicioHora, finFecha, finHora) => {
     if (inicioFecha && inicioHora && finFecha && finHora) {
@@ -66,6 +40,7 @@ function CreateEventModal({ show, onClose, onRegister }) {
 
   useEffect(() => {
     if (show) {
+      // Obtener tipos de evento
       api.tipoEvento
         .getAll()
         .then((res) => {
@@ -73,45 +48,59 @@ function CreateEventModal({ show, onClose, onRegister }) {
         })
         .catch((err) => console.error("Error al cargar tipos de evento", err));
 
-      // Limpiar errores al abrir el modal
       setErrors({});
-    }
-  }, [show]);
 
-  const [formData, setFormData] = useState({
-    nombreEvento: "",
-    descripcionEvento: "",
-    tipoEventoId: "",
-    fechaInicio: "",
-    horaInicio: "",
-    fechaFin: "",
-    horaFin: "",
-    ubicacion: "",
-    responsable: ""
-  });
+      if (evento) {
+        // Cargar datos del evento en modo edición
+        const [fechaInicio, horaInicio] = evento.fechaInicio.split("T");
+        const [fechaFin, horaFin] = evento.fechaFin.split("T");
+
+        setFormData({
+          nombreEvento: evento.nombreEvento || "",
+          descripcionEvento: evento.descripcionEvento || "",
+          tipoEventoId: evento.tipoEvento?.idTipoEvento?.toString() || "",
+          fechaInicio,
+          horaInicio: horaInicio?.slice(0, 5) || "",
+          fechaFin,
+          horaFin: horaFin?.slice(0, 5) || "",
+          ubicacion: evento.ubicacion || "",
+          responsable: evento.responsable || "",
+        });
+
+        calcularDuracion(fechaInicio, horaInicio, fechaFin, horaFin);
+      } else {
+        // Limpiar formulario en modo creación
+        setFormData({
+          nombreEvento: "",
+          descripcionEvento: "",
+          tipoEventoId: "",
+          fechaInicio: "",
+          horaInicio: "",
+          fechaFin: "",
+          horaFin: "",
+          ubicacion: "",
+          responsable: ""
+        });
+        setDuracionHoras(0);
+      }
+    }
+  }, [show, evento]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     let processedValue = value;
 
-    // Procesamiento específico para diferentes campos
     if (name === 'nombreEvento' || name === 'ubicacion') {
-      // Evitar espacios al inicio y espacios múltiples
       if (value.length === 1 && value === ' ') return;
       processedValue = value.replace(/\s{2,}/g, ' ');
     } else if (name === 'responsable') {
-      // Solo letras y espacios, sin espacios al inicio
       if (value.length === 1 && value === ' ') return;
       processedValue = value.replace(/\s{2,}/g, ' ').replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
-    } else if (name === 'horaInicio' || name === 'horaFin') {
-      // Mantener el valor tal como viene del input time
-      processedValue = value;
     }
 
     const updatedForm = { ...formData, [name]: processedValue };
     setFormData(updatedForm);
 
-    // Limpiar error específico cuando el usuario empiece a escribir
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
@@ -126,7 +115,6 @@ function CreateEventModal({ show, onClose, onRegister }) {
 
   const handleBlur = (e) => {
     const { name, value } = e.target;
-    // Limpiar espacios al final en campos de texto
     if (['nombreEvento', 'ubicacion', 'responsable'].includes(name)) {
       setFormData(prev => ({
         ...prev,
@@ -137,18 +125,15 @@ function CreateEventModal({ show, onClose, onRegister }) {
 
   const handleSubmit = async () => {
     try {
-      // Validar con Yup
       await validationSchema.validate(formData, { abortEarly: false });
 
-      // Validación adicional para duración
       if (duracionHoras <= 0) {
         setErrors({ general: 'La duración del evento debe ser mayor a 0 horas' });
         return;
       }
 
-      setErrors({}); // Limpiar errores si la validación pasa
+      setErrors({});
 
-      // Formatear horas para que tengan el formato HH:mm:ss
       const horaInicioFormato = formData.horaInicio.length === 5
         ? `${formData.horaInicio}:00`
         : formData.horaInicio;
@@ -157,7 +142,6 @@ function CreateEventModal({ show, onClose, onRegister }) {
         ? `${formData.horaFin}:00`
         : formData.horaFin;
 
-      // Construir el payload exactamente como en Postman
       const payload = {
         nombreEvento: formData.nombreEvento.trim(),
         descripcionEvento: formData.descripcionEvento.trim(),
@@ -173,10 +157,19 @@ function CreateEventModal({ show, onClose, onRegister }) {
         usuario: { idUsuario: parseInt(usuarioId) }
       };
 
-      onRegister(payload);
+      if (evento) {
+        // Si se está editando
+        const payloadEdit = {
+          ...payload,
+          idEvento: evento.idEvento // Agrega el ID para edición
+        };
+        onUpdate(payloadEdit);
+      } else {
+        // Si se está creando
+        onRegister(payload);
+      }
     } catch (error) {
       if (error.name === 'ValidationError') {
-        // Errores de validación
         const validationErrors = {};
         error.inner.forEach(err => {
           validationErrors[err.path] = err.message;
@@ -363,7 +356,7 @@ function CreateEventModal({ show, onClose, onRegister }) {
               }}
               onClick={handleSubmit}
             >
-              Registrar evento
+              {evento ? "Actualizar evento" : "Registrar evento"}
             </Button>
           </div>
         </Form>

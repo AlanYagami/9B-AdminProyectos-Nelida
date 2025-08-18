@@ -18,8 +18,12 @@ function ResetPassword() {
     newPassword: Yup.string()
       .trim() // Elimina espacios al inicio y al final automáticamente
       .min(8, 'La contraseña debe tener al menos 8 caracteres')
-      .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'La contraseña debe contener al menos una mayúscula, una minúscula y un número')
-      .required('La nueva contraseña es obligatoria'),
+      .matches(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+        'Debe contener al menos una mayúscula, una minúscula y un número'
+      )
+      .matches(/^[^<>/;"'`\\]*$/, 'El correo contiene caracteres inválidos como: <>, /, ;, comillas, etc.')
+      .required('La contraseña es obligatoria'),
     confirmPassword: Yup.string()
       .trim() // Elimina espacios al inicio y al final automáticamente
       .oneOf([Yup.ref('newPassword')], 'Las contraseñas deben coincidir')

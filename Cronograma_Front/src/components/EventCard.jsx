@@ -27,13 +27,27 @@ const EventCard = ({
   const resolvedDotColor = dotColor || getColorByText(eventType || title);
 
   const getImageByText = (text) => {
-  if (!text) return "https://pbs.twimg.com/media/DnOElMPXcAcfGM7.jpg";
-  if (imageMap[text]) return imageMap[text];
-  
-  return "https://pbs.twimg.com/media/DnOElMPXcAcfGM7.jpg";
+    if (!text) return "https://pbs.twimg.com/media/DnOElMPXcAcfGM7.jpg";
+    if (imageMap[text]) return imageMap[text];
+    return "https://pbs.twimg.com/media/DnOElMPXcAcfGM7.jpg";
   };
-  
+
   const resolvedImage = image || getImageByText(eventType || title);
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "—";
+    const [datePart] = dateString.split(" ");
+    const [year, month, day] = datePart.split("-").map(Number);
+
+    const date = new Date(year, month - 1, day);
+
+    return date.toLocaleDateString("es-ES", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+  };
+
 
   return (
     <div
@@ -99,12 +113,16 @@ const EventCard = ({
               <span className="text-white">{schedule}</span>
             </li>
           )}
-          {(startDate || endDate) && (
+          {startDate && (
             <li>
-              <span className="text-light fw-semibold">Fechas:</span>{" "}
-              <span className="text-white">
-                {startDate} {endDate && `- ${endDate}`}
-              </span>
+              <span className="text-light fw-semibold">Fecha inicio:</span>{" "}
+              <span className="text-white">{formatDate(startDate)}</span>
+            </li>
+          )}
+          {endDate && (
+            <li>
+              <span className="text-light fw-semibold">Fecha fin:</span>{" "}
+              <span className="text-white">{formatDate(endDate)}</span>
             </li>
           )}
           {location && (

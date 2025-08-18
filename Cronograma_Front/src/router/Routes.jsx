@@ -18,6 +18,7 @@ import UserCalendar from '../users/UserCalendar';
 import QRModal from './../components/QR/QRModal'
 import CronogramaPage from './../components/CronogramaPage';
 import ProtectedRoute from './ProtectedRoute';
+import EventList from './../organizer/EventList';
 
 function Router() {
   return (
@@ -43,6 +44,7 @@ function Router() {
         <Route path="/organizer/my-events" element={<ProtectedRoute allowedRoles={['role_organizador']}><EventsPage /></ProtectedRoute>}/>
         <Route path="/organizer/calendar" element={<ProtectedRoute allowedRoles={['role_organizador']}><OrganizerCalendar /></ProtectedRoute>}/>
         <Route path="/organizer/History" element={ <ProtectedRoute allowedRoles={['role_organizador']}><HistoryEvents /></ProtectedRoute>}/>
+        <Route path="/organizer/event-list" element={<ProtectedRoute allowedRoles={['role_organizador']}><EventList /></ProtectedRoute>} />
 
         {/* Error */}
         <Route path="*" element={<Error404Page />} />

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import * as Yup from 'yup';
+import {userSchema} from "../validations/userSchema";
 
 function UserModal({ show, onClose, onSubmit, userData }) {
   const [formData, setFormData] = useState({
@@ -10,26 +10,7 @@ function UserModal({ show, onClose, onSubmit, userData }) {
   const [errors, setErrors] = useState({});
 
   // Esquema de validación con Yup
-  const validationSchema = Yup.object({
-    nombre: Yup.string()
-      .transform((value) => (value ? value.trim() : "")) // fuerza trim antes de validar
-      .matches(
-        /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+(?: [A-Za-zÁÉÍÓÚáéíóúÑñ]+){0,2}$/,
-        'Solo se permiten hasta 3 nombres, sin espacios dobles, ni al inicio o final'
-      )
-      .min(3, 'El nombre debe tener al menos 3 caracteres')
-      .required('El nombre es obligatorio'),
-    correo: Yup.string()
-      .transform((value) => (value ? value.trim() : ""))
-      .email('Ingresa un correo electrónico válido')
-      .matches(
-        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-        'El formato del correo no es válido'
-      )
-      .required('El correo electrónico es obligatorio'),
-  });
-
-
+  const validationSchema = userSchema;
 
   useEffect(() => {
     if (userData) {
@@ -47,22 +28,18 @@ function UserModal({ show, onClose, onSubmit, userData }) {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Para el nombre, prevenir espacios al inicio
-    let processedValue = value;
-    if (name === 'nombre') {
-      // No permitir que el primer carácter sea un espacio
-      if (value.length === 1 && value === ' ') {
-        return; // No actualizar el estado si es solo un espacio
-      }
-      // No permitir espacios dobles o triples
-      processedValue = value.replace(/\s{2,}/g, ' ');
-    }
+    const processedValue = value;
 
-    setFormData((prev) => ({ ...prev, [name]: processedValue }));
+    setFormData(prev => ({
+      ...prev,
+      [name]: processedValue
+    }));
 
-    // Limpiar error específico cuando el usuario empiece a escribir
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
     }
   };
 

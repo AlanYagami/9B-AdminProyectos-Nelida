@@ -68,7 +68,7 @@ function EventsPage() {
       <div className="flex-grow-1 text-white py-4 px-3" style={{ marginLeft: "0", marginTop: "56px" }}>
         <div className="d-none d-md-block" style={{ height: "1px", marginLeft: "240px" }}></div>
 
-        <h1 className="text-center mb-4">Mis Eventos</h1>
+        <h1 className="text-center mb-4">Mis Eventos Activos</h1>
 
         <SearchBar
           searchValue={search}

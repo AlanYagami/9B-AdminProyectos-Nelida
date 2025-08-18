@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import Swal from 'sweetalert2';
-import * as Yup from 'yup';
+import { registerSchema } from './../validations/registerSchema';
 import api from '../services/api';
 
 function Register() {
@@ -17,61 +17,26 @@ function Register() {
   const [errors, setErrors] = useState({});
 
   // Esquema de validación con Yup
-  // Esquema de validación con Yup
-  const validationSchema = Yup.object({
-    nombre: Yup.string()
-      .transform((value) => (value ? value.trim().replace(/\s{2,}/g, ' ') : '')) // trim y eliminar dobles espacios
-      .matches(
-        /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+(?: [A-Za-zÁÉÍÓÚáéíóúÑñ]+){0,2}$/,
-        'Solo se permiten hasta 3 nombres, sin espacios dobles ni al inicio o final'
-      )
-      .min(3, 'El nombre debe tener al menos 3 caracteres')
-      .required('El nombre es obligatorio'),
-    correo: Yup.string()
-      .transform((value) => (value ? value.trim() : ''))
-      .email('Ingresa un correo electrónico válido')
-      .matches(
-        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-        'El formato del correo no es válido'
-      )
-      .required('El correo electrónico es obligatorio'),
-    contrasena: Yup.string()
-      .transform((value) => (value ? value.trim() : ''))
-      .min(8, 'La contraseña debe tener al menos 8 caracteres')
-      .matches(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        'Debe contener al menos una mayúscula, una minúscula y un número'
-      )
-      .required('La contraseña es obligatoria'),
-    repetirContrasena: Yup.string()
-      .oneOf([Yup.ref('contrasena')], 'Las contraseñas deben coincidir')
-      .required('Confirma tu contraseña')
-  });
-
-
+  const validationSchema = registerSchema;
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
-    let processedValue = value;
 
-    if (name === 'nombre') {
-      // Quitar espacios dobles
-      processedValue = processedValue.replace(/\s{2,}/g, ' ');
-      // Quitar espacio al inicio
-      if (processedValue.startsWith(' ')) {
-        processedValue = processedValue.trimStart();
-      }
-      // Quitar espacio al final
-      if (processedValue.endsWith(' ')) {
-        processedValue = processedValue.trimEnd();
-      }
-    }
+    const processedValue = value;
 
-    setFormData(prev => ({ ...prev, [name]: processedValue }));
+    setFormData(prev => ({
+      ...prev,
+      [name]: processedValue
+    }));
 
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
     }
   };
+
 
 
   const handleSubmit = async () => {
