@@ -36,13 +36,18 @@ const EventCard = ({
 
   const formatDate = (dateString) => {
     if (!dateString) return "—";
-    const date = new Date(dateString);
+    const [datePart] = dateString.split(" ");
+    const [year, month, day] = datePart.split("-").map(Number);
+
+    const date = new Date(year, month - 1, day);
+
     return date.toLocaleDateString("es-ES", {
       day: "2-digit",
       month: "long",
       year: "numeric",
     });
   };
+
 
   return (
     <div
