@@ -22,11 +22,10 @@ export const contrasena = Yup.string()
   .matches(/^[^<>/;"'`\\]*$/, 'El correo contiene caracteres inválidos como: <>, /, ;, comillas, etc.')
   .required('La contraseña es obligatoria');
 
-  // Validación para nombre (sin <>, espacios dobles, etc)
+// Validación para nombre (sin <>, espacios dobles, etc)
 export const nombre = Yup.string()
-  .transform(value => (value ? value.trim().replace(/\s{2,}/g, ' ') : ''))
   .matches(
-    /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+(?: [A-Za-zÁÉÍÓÚáéíóúÑñ]+){0,2}$/,
+    /^(?!.*\s{2,})(?!\s)(?!.*\s$)([A-Za-zÁÉÍÓÚáéíóúÑñ]{3,})(?: ([A-Za-zÁÉÍÓÚáéíóúÑñ]{3,})){0,2}$/,
     'Solo se permiten hasta 3 nombres, sin espacios dobles ni al inicio o final'
   )
   .matches(/^[^<>\/;"'`\\]*$/, 'El nombre no debe contener caracteres especiales')

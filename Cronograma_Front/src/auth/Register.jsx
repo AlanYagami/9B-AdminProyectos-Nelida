@@ -17,25 +17,12 @@ function Register() {
   const [errors, setErrors] = useState({});
 
   // Esquema de validación con Yup
-  // Esquema de validación con Yup
   const validationSchema = registerSchema;
-
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
-    let processedValue = value;
 
-    if (name === 'nombre') {
-      // Quitar espacios dobles
-      processedValue = processedValue.replace(/\s{2,}/g, ' ');
-      // Quitar espacio al inicio
-      if (processedValue.startsWith(' ')) {
-        processedValue = processedValue.trimStart();
-      }
-      // Quitar espacio al final
-      if (processedValue.endsWith(' ')) {
-        processedValue = processedValue.trimEnd();
-      }
-    }
+    const processedValue = value;
 
     setFormData(prev => ({
       ...prev,
@@ -49,6 +36,7 @@ function Register() {
       }));
     }
   };
+
 
 
   const handleSubmit = async () => {
