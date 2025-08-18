@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import * as Yup from 'yup';
+import { eventoSchema } from "../validations/eventSchema";
 import api from "./../services/api";
 import { Modal, Button, Form, Row, Col } from "react-bootstrap";
 
@@ -10,45 +10,7 @@ function CreateEventModal({ show, onClose, onRegister }) {
   const usuarioId = localStorage.getItem("userId");
 
   // Esquema de validación con Yup
-  const validationSchema = Yup.object({
-    nombreEvento: Yup.string()
-      .trim()
-      .matches(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9][a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s,.-]*[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]$|^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]$/, 'Usa un nombre válido (letras, números, comas, puntos, guiones)')
-      .min(3, 'El nombre debe tener al menos 3 caracteres')
-      .max(100, 'El nombre no puede exceder 100 caracteres')
-      .required('El nombre del evento es obligatorio'),
-    descripcionEvento: Yup.string()
-      .trim()
-      .min(10, 'La descripción debe tener al menos 10 caracteres')
-      .max(500, 'La descripción no puede exceder 500 caracteres')
-      .required('La descripción es obligatoria'),
-    tipoEventoId: Yup.string()
-      .required('Debes seleccionar un tipo de evento'),
-    fechaInicio: Yup.date()
-      .min(new Date().toDateString(), 'La fecha de inicio no puede ser anterior a hoy')
-      .required('La fecha de inicio es obligatoria'),
-    fechaFin: Yup.date()
-      .min(Yup.ref('fechaInicio'), 'La fecha de fin debe ser posterior o igual a la fecha de inicio')
-      .required('La fecha de fin es obligatoria'),
-    horaInicio: Yup.string()
-      .matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Selecciona una hora válida')
-      .required('La hora de inicio es obligatoria'),
-    horaFin: Yup.string()
-      .matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Selecciona una hora válida')
-      .required('La hora de fin es obligatoria'),
-    ubicacion: Yup.string()
-      .trim()
-      .matches(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9][a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s,.-]*[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]$|^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]$/, 'Usa una ubicación válida')
-      .min(3, 'La ubicación debe tener al menos 3 caracteres')
-      .max(100, 'La ubicación no puede exceder 100 caracteres')
-      .required('La ubicación es obligatoria'),
-    responsable: Yup.string()
-      .trim()
-      .matches(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ][a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*[a-zA-ZáéíóúÁÉÍÓÚñÑ]$|^[a-zA-ZáéíóúÁÉÍÓÚñÑ]$/, 'Usa un nombre válido (solo letras)')
-      .min(3, 'El nombre del responsable debe tener al menos 3 caracteres')
-      .max(50, 'El nombre no puede exceder 50 caracteres')
-      .required('El nombre del responsable es obligatorio')
-  });
+  const validationSchema = eventoSchema;
 
   const calcularDuracion = (inicioFecha, inicioHora, finFecha, finHora) => {
     if (inicioFecha && inicioHora && finFecha && finHora) {

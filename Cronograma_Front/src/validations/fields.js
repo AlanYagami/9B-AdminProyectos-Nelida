@@ -1,16 +1,5 @@
 import * as Yup from 'yup';
 
-// Validación para nombre (sin <>, espacios dobles, etc)
-export const nombre = Yup.string()
-  .transform(value => (value ? value.trim().replace(/\s{2,}/g, ' ') : ''))
-  .matches(
-    /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+(?: [A-Za-zÁÉÍÓÚáéíóúÑñ]+){0,2}$/,
-    'Solo se permiten hasta 3 nombres, sin espacios dobles ni al inicio o final'
-  )
-  .matches(/^[^<>\/;"'`\\]*$/, 'El nombre no debe contener caracteres especiales')
-  .min(3, 'El nombre debe tener al menos 3 caracteres')
-  .required('El nombre es obligatorio');
-
 // Validación para correo
 export const correo = Yup.string()
   .transform(value => (value ? value.trim() : ''))
@@ -32,3 +21,14 @@ export const contrasena = Yup.string()
   )
   .matches(/^[^<>/;"'`\\]*$/, 'El correo contiene caracteres inválidos como: <>, /, ;, comillas, etc.')
   .required('La contraseña es obligatoria');
+
+  // Validación para nombre (sin <>, espacios dobles, etc)
+export const nombre = Yup.string()
+  .transform(value => (value ? value.trim().replace(/\s{2,}/g, ' ') : ''))
+  .matches(
+    /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+(?: [A-Za-zÁÉÍÓÚáéíóúÑñ]+){0,2}$/,
+    'Solo se permiten hasta 3 nombres, sin espacios dobles ni al inicio o final'
+  )
+  .matches(/^[^<>\/;"'`\\]*$/, 'El nombre no debe contener caracteres especiales')
+  .min(3, 'El nombre debe tener al menos 3 caracteres')
+  .required('El nombre es obligatorio');
