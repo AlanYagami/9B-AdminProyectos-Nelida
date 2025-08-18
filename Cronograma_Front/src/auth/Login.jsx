@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import * as Yup from 'yup';
+import { loginSchema } from '../validations/loginSchema';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -17,15 +17,7 @@ function Login() {
   const [errors, setErrors] = useState({});
 
   // Esquema de validación con Yup
-  const validationSchema = Yup.object({
-    correo: Yup.string()
-      .email('Ingresa un correo electrónico válido')
-      .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'El formato del correo no es válido')
-      .required('El correo electrónico es obligatorio'),
-    contrasena: Yup.string()
-      .min(1, 'La contraseña es obligatoria')
-      .required('La contraseña es obligatoria')
-  });
+  const validationSchema = loginSchema;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
