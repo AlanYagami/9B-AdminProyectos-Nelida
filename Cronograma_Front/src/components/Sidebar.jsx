@@ -13,6 +13,7 @@ const Sidebar = ({ onLogout, role = "usuario", username = "usuario" }) => {
     ],
     role_organizador: [
       { path: "/organizer/my-events", label: "Mis Eventos", icon: <FaCalendarAlt /> },
+      { path: "/organizer/event-list", label: "Lista de Eventos", icon: <FaCalendarAlt /> },
       { path: "/organizer/History", label: "Historial", icon: <FaUsers /> },
     ],
     usuario: [

@@ -3,11 +3,23 @@ import { eventoSchema } from "../validations/eventSchema";
 import api from "./../services/api";
 import { Modal, Button, Form, Row, Col } from "react-bootstrap";
 
-function CreateEventModal({ show, onClose, onRegister }) {
+function CreateEventModal({ show, onClose, onRegister, onUpdate, evento = null }) {
   const [tiposEvento, setTiposEvento] = useState([]);
   const [duracionHoras, setDuracionHoras] = useState(0);
   const [errors, setErrors] = useState({});
   const usuarioId = localStorage.getItem("userId");
+
+  const [formData, setFormData] = useState({
+    nombreEvento: "",
+    descripcionEvento: "",
+    tipoEventoId: "",
+    fechaInicio: "",
+    horaInicio: "",
+    fechaFin: "",
+    horaFin: "",
+    ubicacion: "",
+    responsable: ""
+  });
 
   // Esquema de validación con Yup
   const validationSchema = eventoSchema;
@@ -28,6 +40,7 @@ function CreateEventModal({ show, onClose, onRegister }) {
 
   useEffect(() => {
     if (show) {
+      // Obtener tipos de evento
       api.tipoEvento
         .getAll()
         .then((res) => {
@@ -35,45 +48,59 @@ function CreateEventModal({ show, onClose, onRegister }) {
         })
         .catch((err) => console.error("Error al cargar tipos de evento", err));
 
-      // Limpiar errores al abrir el modal
       setErrors({});
-    }
-  }, [show]);
 
-  const [formData, setFormData] = useState({
-    nombreEvento: "",
-    descripcionEvento: "",
-    tipoEventoId: "",
-    fechaInicio: "",
-    horaInicio: "",
-    fechaFin: "",
-    horaFin: "",
-    ubicacion: "",
-    responsable: ""
-  });
+      if (evento) {
+        // Cargar datos del evento en modo edición
+        const [fechaInicio, horaInicio] = evento.fechaInicio.split("T");
+        const [fechaFin, horaFin] = evento.fechaFin.split("T");
+
+        setFormData({
+          nombreEvento: evento.nombreEvento || "",
+          descripcionEvento: evento.descripcionEvento || "",
+          tipoEventoId: evento.tipoEvento?.idTipoEvento?.toString() || "",
+          fechaInicio,
+          horaInicio: horaInicio?.slice(0, 5) || "",
+          fechaFin,
+          horaFin: horaFin?.slice(0, 5) || "",
+          ubicacion: evento.ubicacion || "",
+          responsable: evento.responsable || "",
+        });
+
+        calcularDuracion(fechaInicio, horaInicio, fechaFin, horaFin);
+      } else {
+        // Limpiar formulario en modo creación
+        setFormData({
+          nombreEvento: "",
+          descripcionEvento: "",
+          tipoEventoId: "",
+          fechaInicio: "",
+          horaInicio: "",
+          fechaFin: "",
+          horaFin: "",
+          ubicacion: "",
+          responsable: ""
+        });
+        setDuracionHoras(0);
+      }
+    }
+  }, [show, evento]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     let processedValue = value;
 
-    // Procesamiento específico para diferentes campos
     if (name === 'nombreEvento' || name === 'ubicacion') {
-      // Evitar espacios al inicio y espacios múltiples
       if (value.length === 1 && value === ' ') return;
       processedValue = value.replace(/\s{2,}/g, ' ');
     } else if (name === 'responsable') {
-      // Solo letras y espacios, sin espacios al inicio
       if (value.length === 1 && value === ' ') return;
       processedValue = value.replace(/\s{2,}/g, ' ').replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
-    } else if (name === 'horaInicio' || name === 'horaFin') {
-      // Mantener el valor tal como viene del input time
-      processedValue = value;
     }
 
     const updatedForm = { ...formData, [name]: processedValue };
     setFormData(updatedForm);
 
-    // Limpiar error específico cuando el usuario empiece a escribir
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
@@ -88,7 +115,6 @@ function CreateEventModal({ show, onClose, onRegister }) {
 
   const handleBlur = (e) => {
     const { name, value } = e.target;
-    // Limpiar espacios al final en campos de texto
     if (['nombreEvento', 'ubicacion', 'responsable'].includes(name)) {
       setFormData(prev => ({
         ...prev,
@@ -99,18 +125,15 @@ function CreateEventModal({ show, onClose, onRegister }) {
 
   const handleSubmit = async () => {
     try {
-      // Validar con Yup
       await validationSchema.validate(formData, { abortEarly: false });
 
-      // Validación adicional para duración
       if (duracionHoras <= 0) {
         setErrors({ general: 'La duración del evento debe ser mayor a 0 horas' });
         return;
       }
 
-      setErrors({}); // Limpiar errores si la validación pasa
+      setErrors({});
 
-      // Formatear horas para que tengan el formato HH:mm:ss
       const horaInicioFormato = formData.horaInicio.length === 5
         ? `${formData.horaInicio}:00`
         : formData.horaInicio;
@@ -119,7 +142,6 @@ function CreateEventModal({ show, onClose, onRegister }) {
         ? `${formData.horaFin}:00`
         : formData.horaFin;
 
-      // Construir el payload exactamente como en Postman
       const payload = {
         nombreEvento: formData.nombreEvento.trim(),
         descripcionEvento: formData.descripcionEvento.trim(),
@@ -135,10 +157,19 @@ function CreateEventModal({ show, onClose, onRegister }) {
         usuario: { idUsuario: parseInt(usuarioId) }
       };
 
-      onRegister(payload);
+      if (evento) {
+        // Si se está editando
+        const payloadEdit = {
+          ...payload,
+          idEvento: evento.idEvento // Agrega el ID para edición
+        };
+        onUpdate(payloadEdit);
+      } else {
+        // Si se está creando
+        onRegister(payload);
+      }
     } catch (error) {
       if (error.name === 'ValidationError') {
-        // Errores de validación
         const validationErrors = {};
         error.inner.forEach(err => {
           validationErrors[err.path] = err.message;
@@ -325,7 +356,7 @@ function CreateEventModal({ show, onClose, onRegister }) {
               }}
               onClick={handleSubmit}
             >
-              Registrar evento
+              {evento ? "Actualizar evento" : "Registrar evento"}
             </Button>
           </div>
         </Form>

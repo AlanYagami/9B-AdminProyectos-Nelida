@@ -74,7 +74,6 @@ function LoggedEvents() {
     }
   };
 
-
   useEffect(() => {
     fetchEventos();
   }, []);
