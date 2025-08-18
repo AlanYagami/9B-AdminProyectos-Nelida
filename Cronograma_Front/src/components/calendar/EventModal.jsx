@@ -1,6 +1,6 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useState, useEffect } from 'react';
-import * as Yup from 'yup';
+import { eventoSchema } from '../../validations/bloqueSchema';
 
 function EventModal({
   show,
@@ -22,21 +22,7 @@ function EventModal({
   const [errors, setErrors] = useState({});
 
   // Esquema de validación con Yup
-  const validationSchema = Yup.object({
-    eventTitle: Yup.string()
-      .trim()
-      .matches(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9][a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s,.-]*[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]$|^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]$/, 'Usa un título válido (letras, números, espacios)')
-      .min(3, 'El título debe tener al menos 3 caracteres')
-      .max(50, 'El título no puede exceder 50 caracteres')
-      .required('El título es obligatorio'),
-    eventDescription: Yup.string()
-      .trim()
-      .min(5, 'La descripción debe tener al menos 5 caracteres')
-      .max(150, 'La descripción no puede exceder 150 caracteres')
-      .required('La descripción es obligatoria'),
-    eventColor: Yup.string()
-      .required('Debes seleccionar un color')
-  });
+  const validationSchema = eventoSchema;
 
   // Limpiar errores cuando se abra/cierre el modal
   useEffect(() => {
@@ -46,30 +32,20 @@ function EventModal({
   }, [show]);
 
   const handleTitleChange = (e) => {
-    let value = e.target.value;
-
-    // Prevenir espacios al inicio y espacios múltiples
-    if (value.length === 1 && value === ' ') return;
-    value = value.replace(/\s{2,}/g, ' ');
-
+    const value = e.target.value;
     setEventTitle(value);
 
-    // Limpiar error específico cuando el usuario empiece a escribir
+    // Limpiar error específico
     if (errors.eventTitle) {
       setErrors(prev => ({ ...prev, eventTitle: '' }));
     }
   };
 
   const handleDescriptionChange = (e) => {
-    let value = e.target.value;
-
-    // Prevenir espacios al inicio y espacios múltiples
-    if (value.length === 1 && value === ' ') return;
-    value = value.replace(/\s{2,}/g, ' ');
-
+    const value = e.target.value;
     setEventDescription(value);
 
-    // Limpiar error específico cuando el usuario empiece a escribir
+    // Limpiar error específico
     if (errors.eventDescription) {
       setErrors(prev => ({ ...prev, eventDescription: '' }));
     }
@@ -78,7 +54,7 @@ function EventModal({
   const handleColorChange = (e) => {
     setEventColor(e.target.value);
 
-    // Limpiar error específico cuando el usuario seleccione
+    // Limpiar error específico
     if (errors.eventColor) {
       setErrors(prev => ({ ...prev, eventColor: '' }));
     }
