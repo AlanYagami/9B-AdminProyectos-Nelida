@@ -102,7 +102,7 @@ export function generarPDF(evento = {}, cronograma = {}) {
         y = 20;
       }
 
-      // Formateo de fecha y hora
+      // Formatear fecha
       const date = new Date(`${actividad.date}`);
       const formattedDate = date.toLocaleDateString("es-ES", {
         weekday: 'long',
@@ -111,43 +111,60 @@ export function generarPDF(evento = {}, cronograma = {}) {
         day: 'numeric'
       });
 
-      // Sumar 1 hora a la hora de inicio
-      const timeString = actividad.time;
-      const [hours, minutes] = timeString.split(':').map(Number);
+      // Calcular hora de fin (+1h)
+      const [hours, minutes] = actividad.time.split(':').map(Number);
       const dateWithTime = new Date(actividad.date);
       dateWithTime.setHours(hours, minutes);
       dateWithTime.setHours(dateWithTime.getHours() + 1);
       const newTime = `${String(dateWithTime.getHours()).padStart(2, '0')}:${String(dateWithTime.getMinutes()).padStart(2, '0')}`;
 
-      // Crear el texto formateado para la actividad
-      const actividadTexto = `${actividad.title}: ${actividad.description} (${actividad.time} - ${newTime})`;
-      const tiempoTexto = `${formattedDate}`;
+      // Preparar textos
+      const actividadTexto = `${actividad.title}`;
+      const descripcionEvento = actividad.description || 'Sin descripción';
+      const comentarioExtra = actividad.descripcionEvento || null;
+      const tiempoTexto = `${formattedDate}, ${actividad.time} - ${newTime}`;
 
-      // Bloque con color para resaltar la actividad
-      doc.setFillColor(240, 240, 240); // Gris claro
-      doc.rect(10, y - 3, pageWidth - 20, 15, 'F');  // Fondo gris
-      doc.setFont('helvetica', 'bold');
-      doc.text(actividadTexto, 10, y);
-      y += 6;
+      // Dimensiones
+      const marginX = 15;
+      const innerMargin = marginX + 2;
+      const lineSpacing = 6;
+      const numLineas = comentarioExtra ? 4 : 3;
+      const blockHeight = numLineas * lineSpacing + 3;
 
-      // Imprimir el tiempo y la fecha de la actividad
-      doc.setFont('helvetica', 'normal');
+      // Fondo del bloque
+      doc.setFillColor(240, 240, 240);
+      doc.rect(marginX, y - 3, pageWidth - 2 * marginX, blockHeight, 'F');
+
+      // Título de la actividad
+      doc.setFont('times', 'bold');
+      doc.setTextColor(0);
+      doc.text(actividadTexto, innerMargin, y);
+      y += lineSpacing;
+
+      // Descripción
+      doc.setFont('times', 'italic');
+      doc.setTextColor(60);
+      doc.text(descripcionEvento, innerMargin, y);
+      y += lineSpacing;
+
+      // Tiempo
+      doc.setFont('times', 'normal');
       doc.setTextColor(80);
-      doc.text(tiempoTexto, 10, y);
-      y += 6;
+      doc.text(tiempoTexto, innerMargin, y);
+      y += lineSpacing;
 
-      if (actividad.descripcionEvento) {
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(90);
-        doc.text(`   ${actividad.descripcionEvento}`, 10, y);
-        y += 6;
-        doc.setTextColor(50);
+      // Comentario extra (si existe)
+      if (comentarioExtra) {
+        doc.setFont('times', 'normal');
+        doc.setTextColor(100);
+        doc.text(comentarioExtra, innerMargin, y);
+        y += lineSpacing;
       }
 
-      // Línea decorativa para separar cada actividad
-      doc.setDrawColor(0, 102, 204); // Azul
+      // Línea separadora
+      doc.setDrawColor(0, 102, 204);
       doc.setLineWidth(0.8);
-      doc.line(10, y, pageWidth - 10, y);
+      doc.line(marginX, y, pageWidth - marginX, y);
       y += 5;
     });
   }

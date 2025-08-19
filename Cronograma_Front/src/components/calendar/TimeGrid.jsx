@@ -25,6 +25,12 @@ function TimeGrid({ currentWeek, events, onSlotClick }) {
 
   const weekDays = getWeekDays(currentWeek);
 
+  /* //para mostrar el tiempo en el modal (hora inicio - hora fin)
+  <span className="ms-1 small">
+    {event.time} - {getEndTime(event.time)}
+  </span>
+   */
+
   return (
     <div
       className="table-responsive"
@@ -36,7 +42,7 @@ function TimeGrid({ currentWeek, events, onSlotClick }) {
     >
       <div
         className="d-flex flex-column"
-        style={{ minWidth: '750px' }} // Asegura que haya scroll horizontal en móviles
+        style={{ minWidth: '750px' }}
       >
         {timeSlots.map((time, i) => (
           <div
@@ -65,7 +71,7 @@ function TimeGrid({ currentWeek, events, onSlotClick }) {
                   style={{
                     cursor: 'pointer',
                     minHeight: '60px',
-                    minWidth: '100px', // Esto asegura que no colapse en pantallas pequeñas
+                    minWidth: '100px',
                     backgroundColor,
                   }}
                   onClick={() => onSlotClick(day, time)}
@@ -82,11 +88,15 @@ function TimeGrid({ currentWeek, events, onSlotClick }) {
                         whiteSpace: 'pre-line',
                       }}
                     >
-                      <div className="fw-bold text-truncate">
-                        {event.time} - {getEndTime(event.time)} {event.title}
-                      </div>
-                      <div className="small text-truncate">
-                        {event.description?.slice(0, 100) || ''}
+                      <div className='row gx-1'>
+                        <div className='col'>
+                          <div className="text-truncate">
+                            <span className="fw-bold"> {event.title}</span>
+                          </div>
+                          <div className="small text-truncate">
+                            {event.description || ''}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   )}
