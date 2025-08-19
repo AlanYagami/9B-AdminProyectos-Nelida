@@ -1,11 +1,12 @@
 // QRModal.jsx
 import React from 'react';
 import { Modal, Button } from 'react-bootstrap';
+import { API_BASE_URL_PUBLIC } from '../../services/config';
 
 const QRModal = ({ show, onClose, eventoId }) => {
   if (!eventoId) return null;
 
-  const url = `http://192.168.0.123:5173/cronograma?id=${eventoId}`;
+  const url = `${API_BASE_URL_PUBLIC}/cronograma?id=${eventoId}`;
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}`;
 
   return (

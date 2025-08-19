@@ -1,8 +1,9 @@
 import axios from "axios";
 import Swal from "sweetalert2";
+import { API_BASE_URL } from "./config";
 
 const apiClient = axios.create({
-  baseURL: "http://192.168.0.123:8080", 
+  baseURL: API_BASE_URL, 
   headers: {
     "Content-Type": "application/json",
   },

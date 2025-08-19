@@ -1,6 +1,6 @@
 import jsPDF from 'jspdf';
 
-export function generarPDF(evento = {}, cronograma = {}) {
+export function generarPDF(evento = {}, cronograma = {}, tipoEvento = "Sin tipo") {
   const doc = new jsPDF();
 
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -25,12 +25,14 @@ export function generarPDF(evento = {}, cronograma = {}) {
   y += 1;
 
   // Desestructuración de los datos del evento con valores predeterminados
+  const eventType = tipoEvento?.tipoEvento || 'Sin tipo';
+
   const {
     nombreEvento = 'Evento sin nombre',
     descripcionEvento = 'Sin descripción',
-    eventType = 'Sin tipo',
     duration = Math.ceil((new Date(evento.fechaFin) - new Date(evento.fechaInicio)) / 3600000) || '-',
-    schedule = `${evento.fechaInicio?.split("T")[1]?.slice(0, 5)} - ${evento.fechaFin?.split("T")[1]?.slice(0, 5)}` || '-',
+    startHour = `${evento.fechaInicio?.split("T")[1]?.slice(0, 5)}` || '--:--',
+    endHour = `${evento.fechaFin?.split("T")[1]?.slice(0, 5)}` || '--:--',
     startDate = evento.fechaInicio?.split("T")[0] || '-',
     endDate = evento.fechaFin?.split("T")[0] || '-',
     ubicacion = evento.ubicacion || 'Sin ubicación',
@@ -52,7 +54,8 @@ export function generarPDF(evento = {}, cronograma = {}) {
     [`Descripción`, descripcionEvento],
     [`Tipo`, eventType],
     [`Duración`, `${duration} hrs`],
-    [`Horario`, schedule],
+    [`Hora inicio`, `${startHour}`],
+    [`Hora fin`, `${endHour}`],
     [`Fecha inicio`, `${endDate}`],
     [`Fecha fin`, `${startDate}`],
     [`Ubicación`, ubicacion],
