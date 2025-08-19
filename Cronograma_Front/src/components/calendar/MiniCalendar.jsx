@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { formatDateKey } from '../../utils/dateHelpers';
+
 import QRModal from './../QR/QRModal';
 
 import Swal from 'sweetalert2';
@@ -7,53 +8,78 @@ import Swal from 'sweetalert2';
 function MiniCalendar({ selectedDate, setSelectedDate, setCurrentWeek, events, event, color = '#764BA2', onDownloadPDF }) {
   const [showQRModal, setShowQRModal] = useState(false);
 
+  const validarDisponibilidad = (event) => {
+    if (!event) return { valido: false };
+
+    const ahora = new Date();
+
+    const fechaEvento = new Date(event.fechaInicio);
+    const diaEvento = fechaEvento.toDateString();
+    const hoy = ahora.toDateString();
+
+    if (hoy !== diaEvento) {
+      return {
+        valido: false,
+        alerta: {
+          icon: 'warning',
+          title: 'QR no disponible',
+          text: 'Solo puedes acceder al QR el día del evento.',
+        },
+      };
+    }
+
+    const fechaHoraInicio = new Date(`${event.fechaInicio.split('T')[0]}T${event.horaInicio}`);
+    const fechaHoraFin = new Date(`${event.fechaInicio.split('T')[0]}T${event.horaFin}`);
+
+    const dosHorasAntes = new Date(fechaHoraInicio.getTime() - 2 * 60 * 60 * 1000);
+
+    if (ahora < dosHorasAntes) {
+      const msRestantes = dosHorasAntes - ahora;
+      const horas = Math.floor(msRestantes / (1000 * 60 * 60));
+      const minutos = Math.ceil((msRestantes % (1000 * 60 * 60)) / (1000 * 60));
+
+      return {
+        valido: false,
+        alerta: {
+          icon: 'info',
+          title: 'Aún no disponible',
+          text: `Puedes acceder al QR solo 2 horas antes del evento. Faltan aproximadamente ${horas}h ${minutos}min.`,
+        },
+      };
+    }
+
+    if (ahora > fechaHoraFin) {
+      return {
+        valido: false,
+        alerta: {
+          icon: 'error',
+          title: 'Evento finalizado',
+          text: 'El evento ya ha terminado. El QR ya no está disponible.',
+        },
+      };
+    }
+
+    return { valido: true };
+  };
+
   const handleShowQR = () => {
-  if (!event) return;
+    const resultado = validarDisponibilidad(event);
 
-  const ahora = new Date();
+    if (!resultado.valido) {
+      if (resultado.alerta) {
+        Swal.fire(resultado.alerta);
+      }
+      return;
+    }
 
-  const fechaEvento = new Date(event.fechaInicio);
-  const diaEvento = fechaEvento.toDateString();
-  const hoy = ahora.toDateString();
+    setShowQRModal(true);
+  };
 
-  if (hoy !== diaEvento) {
-    Swal.fire({
-      icon: 'warning',
-      title: 'QR no disponible',
-      text: 'Solo puedes acceder al QR el día del evento.',
-    });
-    return;
-  }
 
-  const fechaHoraInicio = new Date(`${event.fechaInicio.split('T')[0]}T${event.horaInicio}`);
-  const fechaHoraFin = new Date(`${event.fechaInicio.split('T')[0]}T${event.horaFin}`);
+  const handleDownloadPDF = () => {
+    onDownloadPDF();
+  };
 
-  const dosHorasAntes = new Date(fechaHoraInicio.getTime() - 2 * 60 * 60 * 1000);
-
-  if (ahora < dosHorasAntes) {
-    const msRestantes = dosHorasAntes - ahora;
-    const horas = Math.floor(msRestantes / (1000 * 60 * 60));
-    const minutos = Math.ceil((msRestantes % (1000 * 60 * 60)) / (1000 * 60));
-
-    Swal.fire({
-      icon: 'info',
-      title: 'Aún no disponible',
-      text: `Puedes acceder al QR solo 2 horas antes del evento. Faltan aproximadamente ${horas}h ${minutos}min.`,
-    });
-    return;
-  }
-
-  if (ahora > fechaHoraFin) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Evento finalizado',
-      text: 'El evento ya ha terminado. El QR ya no está disponible.',
-    });
-    return;
-  }
-  
-  setShowQRModal(true);
-};
 
   const dayNames = ['DOM', 'LUN', 'MAR', 'MIE', 'JUE', 'VIE', 'SAB'];
   const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
@@ -129,7 +155,7 @@ function MiniCalendar({ selectedDate, setSelectedDate, setCurrentWeek, events, e
         </button>
         <button
           className="btn btn-outline-light me-2"
-          onClick={() => onDownloadPDF()}
+          onClick={handleDownloadPDF}
         >
           Descargar
         </button>
