@@ -2,14 +2,58 @@ import React, { useState, useEffect } from 'react';
 import { formatDateKey } from '../../utils/dateHelpers';
 import QRModal from './../QR/QRModal';
 
+import Swal from 'sweetalert2';
+
 function MiniCalendar({ selectedDate, setSelectedDate, setCurrentWeek, events, event, color = '#764BA2', onDownloadPDF }) {
   const [showQRModal, setShowQRModal] = useState(false);
 
   const handleShowQR = () => {
-    localStorage.setItem('eventoQR', JSON.stringify(event));
-    localStorage.setItem('cronogramaQR', JSON.stringify(events));
-    setShowQRModal(true);
-  };
+  if (!event) return;
+
+  const ahora = new Date();
+
+  const fechaEvento = new Date(event.fechaInicio);
+  const diaEvento = fechaEvento.toDateString();
+  const hoy = ahora.toDateString();
+
+  if (hoy !== diaEvento) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'QR no disponible',
+      text: 'Solo puedes acceder al QR el día del evento.',
+    });
+    return;
+  }
+
+  const fechaHoraInicio = new Date(`${event.fechaInicio.split('T')[0]}T${event.horaInicio}`);
+  const fechaHoraFin = new Date(`${event.fechaInicio.split('T')[0]}T${event.horaFin}`);
+
+  const dosHorasAntes = new Date(fechaHoraInicio.getTime() - 2 * 60 * 60 * 1000);
+
+  if (ahora < dosHorasAntes) {
+    const msRestantes = dosHorasAntes - ahora;
+    const horas = Math.floor(msRestantes / (1000 * 60 * 60));
+    const minutos = Math.ceil((msRestantes % (1000 * 60 * 60)) / (1000 * 60));
+
+    Swal.fire({
+      icon: 'info',
+      title: 'Aún no disponible',
+      text: `Puedes acceder al QR solo 2 horas antes del evento. Faltan aproximadamente ${horas}h ${minutos}min.`,
+    });
+    return;
+  }
+
+  if (ahora > fechaHoraFin) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Evento finalizado',
+      text: 'El evento ya ha terminado. El QR ya no está disponible.',
+    });
+    return;
+  }
+  
+  setShowQRModal(true);
+};
 
   const dayNames = ['DOM', 'LUN', 'MAR', 'MIE', 'JUE', 'VIE', 'SAB'];
   const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
