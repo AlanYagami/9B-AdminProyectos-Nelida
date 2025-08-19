@@ -111,8 +111,8 @@ function Calendar({ role = 'user', event }) {
         valido: false,
         alerta: {
           icon: 'warning',
-          title: 'QR no disponible',
-          text: 'Solo puedes acceder al QR el día del evento.',
+          title: 'Descarga no disponible',
+          text: 'Solo puedes acceder a la descarga el día del evento.',
         },
       };
     }
@@ -132,7 +132,7 @@ function Calendar({ role = 'user', event }) {
         alerta: {
           icon: 'info',
           title: 'Aún no disponible',
-          text: `Puedes acceder al QR solo 2 horas antes del evento. Faltan aproximadamente ${horas}h ${minutos}min.`,
+          text: `Puedes acceder a la descarga solo 2 horas antes del evento. Faltan aproximadamente ${horas}h ${minutos}min.`,
         },
       };
     }
@@ -143,7 +143,7 @@ function Calendar({ role = 'user', event }) {
         alerta: {
           icon: 'error',
           title: 'Evento finalizado',
-          text: 'El evento ya ha terminado. El QR ya no está disponible.',
+          text: 'El evento ya ha terminado. La descarga ya no está disponible.',
         },
       };
     }
