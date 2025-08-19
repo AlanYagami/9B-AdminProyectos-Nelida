@@ -65,6 +65,13 @@ function MiniCalendar({ selectedDate, setSelectedDate, setCurrentWeek, events, e
     }
   }, [event]);
 
+  // Sumar 1 hora a event.time
+  const getEndTime = (startTime) => {
+    const [hour] = startTime.split(':').map(Number);
+    const endHour = hour + 1;
+    return `${endHour}:00`;
+  };
+
   return (
     <div className="col-12 col-md-3 bg-dark p-3 border-end border-secondary d-flex flex-column mb-4 mb-md-0 flex-shrink-0" style={{ maxHeight: '100vh' }}>
       {/* Botones en una misma fila */}
@@ -174,7 +181,7 @@ function MiniCalendar({ selectedDate, setSelectedDate, setCurrentWeek, events, e
                       }}
                     ></div>
                     <div className="text-white text-truncate" style={{ fontSize: '0.875rem' }}>
-                      <strong>{event.time}</strong> - {event.title}
+                      <strong>{event.time}</strong> - <strong>{getEndTime(event.time)}</strong> {event.title}
                     </div>
                   </div>
                   {event.description && (

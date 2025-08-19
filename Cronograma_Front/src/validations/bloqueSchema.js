@@ -10,7 +10,7 @@ export const bloqueFields = {
         .matches(soloLetrasRegex, 'Usa un nombre válido (Solo letras)')
         .matches(sinCaracteresInvalidosRegex, 'El nombre contiene caracteres inválidos')
         .min(3, 'El nombre debe tener al menos 3 caracteres')
-        .max(10, 'El nombre no puede exceder 10 caracteres')
+        .max(23, 'El nombre no puede exceder 23 caracteres')
         .required('El nombre del evento es obligatorio'),
     
     eventDescription: Yup.string()
@@ -18,7 +18,7 @@ export const bloqueFields = {
         .matches(textoComunRegex, 'Usa una descripción válida (letras, números, comas, puntos, guiones)')
         .matches(sinCaracteresInvalidosRegex, 'La descripción contiene caracteres inválidos')
         .min(5, 'La descripción debe tener al menos 5 caracteres')
-        .max(30, 'La descripción no puede exceder 50 caracteres')
+        .max(65, 'La descripción no puede exceder 65 caracteres')
         .required('La descripción es obligatoria'),
     eventColor: Yup.string()
         .required('Debes seleccionar un color'),
