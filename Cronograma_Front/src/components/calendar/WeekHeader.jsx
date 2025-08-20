@@ -8,8 +8,11 @@ function WeekHeader({ currentWeek, setCurrentWeek }) {
   const textPurple = { color: purple };
 
   const getWeekDays = (date) => {
+    const day = date.getDay();
+    const diff = (day === 0 ? -6 : 1) - day;
     const start = new Date(date);
-    start.setDate(start.getDate() - start.getDay());
+    start.setDate(start.getDate() + diff);
+
     return Array.from({ length: 7 }, (_, i) => {
       const d = new Date(start);
       d.setDate(start.getDate() + i);
@@ -23,8 +26,18 @@ function WeekHeader({ currentWeek, setCurrentWeek }) {
     <>
       <div className="d-flex justify-content-between align-items-center p-3 border-bottom border-secondary">
         <div className="d-flex align-items-center">
-          <button className="btn btn-outline-light me-2" onClick={() => setCurrentWeek(prev => new Date(prev.setDate(prev.getDate() - 7)))}>‹</button>
-          <button className="btn btn-outline-light me-2" onClick={() => setCurrentWeek(prev => new Date(prev.setDate(prev.getDate() + 7)))}>›</button>
+          <button className="btn btn-outline-light me-2" 
+          onClick={() => setCurrentWeek(prev => {
+            const newDate = new Date(prev);
+            newDate.setDate(newDate.getDate() - 7);
+            return newDate;
+          })}>‹</button>
+          <button className="btn btn-outline-light me-2" 
+          onClick={() => setCurrentWeek(prev => {
+            const newDate = new Date(prev);
+            newDate.setDate(newDate.getDate() + 7);
+            return newDate;
+          })}>›</button>
           <button className="btn me-2" style={{ backgroundColor: purple, color: 'white' }} onClick={() => setCurrentWeek(new Date())}>Hoy</button>
           <h5 className="mb-0 text-white">{monthNames[currentWeek.getMonth()]} {currentWeek.getFullYear()}</h5>
         </div>

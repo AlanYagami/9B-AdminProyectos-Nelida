@@ -2,6 +2,7 @@ package mx.edu.utez.cronograma_back.controllers;
 
 import mx.edu.utez.cronograma_back.modules.Bloque.Bloque;
 import mx.edu.utez.cronograma_back.services.BloqueService;
+import mx.edu.utez.cronograma_back.utils.APIResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,9 +44,19 @@ public class BloqueController {
     }
 
     @PostMapping
-    public ResponseEntity<Bloque> crear(@RequestBody Bloque bloque) {
-        Bloque nuevoBloque = bloqueService.guardar(bloque);
-        return new ResponseEntity<>(nuevoBloque, HttpStatus.CREATED);
+    public ResponseEntity<APIResponse> crear(@RequestBody Bloque bloque) {
+        try {
+            Bloque nuevoBloque = bloqueService.guardar(bloque);
+            return new ResponseEntity<>(
+                    new APIResponse("Bloque creado correctamente", nuevoBloque, false, HttpStatus.CREATED),
+                    HttpStatus.CREATED
+            );
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(
+                    new APIResponse(e.getMessage(), null, true, HttpStatus.CONFLICT),
+                    HttpStatus.CONFLICT
+            );
+        }
     }
 
     @PutMapping("/{id}")
