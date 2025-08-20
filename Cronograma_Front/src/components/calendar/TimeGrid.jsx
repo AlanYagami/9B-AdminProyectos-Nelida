@@ -1,7 +1,9 @@
 import { formatDateKey } from '../../utils/dateHelpers';
 
 function TimeGrid({ currentWeek, events, onSlotClick }) {
-  const timeSlots = Array.from({ length: 11 }, (_, i) => `${i + 7}:00`);
+  const timeSlots = Array.from({ length: 11 }, (_, i) =>
+    `${String(i + 7).padStart(2, "0")}:00`
+  );
 
   const getWeekDays = (date) => {
     const day = date.getDay();
