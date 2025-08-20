@@ -14,7 +14,7 @@ export const eventoFields = {
     .matches(textoComunRegex, 'Usa un nombre válido (letras, números, comas, puntos, guiones)')
     .matches(sinCaracteresInvalidosRegex, 'El nombre contiene caracteres inválidos')
     .min(3, 'El nombre debe tener al menos 3 caracteres')
-    .max(25, 'El nombre no puede exceder 25 caracteres')
+    .max(20, 'El nombre no puede exceder 20 caracteres')
     .required('El nombre del evento es obligatorio'),
 
   descripcionEvento: Yup.string()
