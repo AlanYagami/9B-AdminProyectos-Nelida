@@ -4,8 +4,11 @@ function TimeGrid({ currentWeek, events, onSlotClick }) {
   const timeSlots = Array.from({ length: 11 }, (_, i) => `${i + 7}:00`);
 
   const getWeekDays = (date) => {
+    const day = date.getDay();
+    const diff = (day === 0 ? -6 : 1) - day;
     const start = new Date(date);
-    start.setDate(start.getDate() - start.getDay());
+    start.setDate(start.getDate() + diff);
+
     return Array.from({ length: 7 }, (_, i) => {
       const d = new Date(start);
       d.setDate(start.getDate() + i);

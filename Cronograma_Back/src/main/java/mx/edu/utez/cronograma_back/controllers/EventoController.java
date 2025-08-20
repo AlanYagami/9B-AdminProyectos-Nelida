@@ -3,6 +3,7 @@ package mx.edu.utez.cronograma_back.controllers;
 import lombok.RequiredArgsConstructor;
 import mx.edu.utez.cronograma_back.modules.Evento.Evento;
 import mx.edu.utez.cronograma_back.services.EventoService;
+import mx.edu.utez.cronograma_back.utils.APIResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,9 +48,19 @@ public class EventoController {
     }
 
     @PostMapping
-    public ResponseEntity<Evento> crear(@RequestBody Evento nuevoEvento) {
-        Evento eventoGuardado = eventoService.guardar(nuevoEvento);
-        return new ResponseEntity<>(eventoGuardado, HttpStatus.CREATED);
+    public ResponseEntity<APIResponse> crear(@RequestBody Evento nuevoEvento) {
+        try {
+            Evento eventoGuardado = eventoService.guardar(nuevoEvento);
+            return new ResponseEntity<>(
+                    new APIResponse("Evento creado correctamente", eventoGuardado, false, HttpStatus.CREATED),
+                    HttpStatus.CREATED
+            );
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(
+                    new APIResponse(e.getMessage(), null, true, HttpStatus.CONFLICT),
+                    HttpStatus.CONFLICT
+            );
+        }
     }
 
     @PutMapping("/{id}")

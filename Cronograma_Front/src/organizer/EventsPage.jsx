@@ -6,6 +6,7 @@ import SearchBar from "../components/SearchBar";
 import CreateEventModal from "../components/CreateEventModal";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import Swal from "sweetalert2";
 
 function EventsPage() {
   const [search, setSearch] = useState("");
@@ -45,14 +46,23 @@ function EventsPage() {
   // Registrar un nuevo evento
   const handleRegisterEvent = async (eventoData) => {
     try {
-      await api.eventos.create(eventoData);
+      const response = await api.eventos.create(eventoData);
       await fetchEventos();
       setShowModal(false);
+
+      Swal.fire({
+        icon: "success",
+        title: "Evento creado",
+        text: response.data.message || "El evento se registró exitosamente.",
+        confirmButtonColor: "#667eea",
+        background: "#2c2c2c",
+        color: "white",
+      });
     } catch (error) {
       console.error("Error al registrar evento:", error);
+      // El interceptor ya muestra el error con Swal.fire, así que aquí no hace falta duplicarlo
     }
   };
-
 
 
 
