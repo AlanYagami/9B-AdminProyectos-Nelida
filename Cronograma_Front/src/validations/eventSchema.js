@@ -14,18 +14,18 @@ hoy.setHours(0, 0, 0, 0);
 export const eventoFields = {
   nombreEvento: Yup.string()
     .trim()
-    .matches(textoComunRegex, 'Usa un nombre válido (letras, números, comas, puntos, guiones)')
+    .matches(textoComunRegex, 'Usa un nombre válido (letras, números, comas, guiones)')
     .matches(sinCaracteresInvalidosRegex, 'El nombre contiene caracteres inválidos')
     .min(3, 'El nombre debe tener al menos 3 caracteres')
-    .max(20, 'El nombre no puede exceder 20 caracteres')
+    .max(25, 'El nombre no puede exceder 25 caracteres')
     .required('El nombre del evento es obligatorio'),
 
   descripcionEvento: Yup.string()
     .trim()
-    .matches(textoComunRegex, 'Usa una descripción válida (letras, números, comas, puntos, guiones)')
+    .matches(textoComunRegex, 'Usa una descripción válida (letras, números, comas, guiones)')
     .matches(sinCaracteresInvalidosRegex, 'La descripción contiene caracteres inválidos')
     .min(10, 'La descripción debe tener al menos 10 caracteres')
-    .max(50, 'La descripción no puede exceder 50 caracteres')
+    .max(100, 'La descripción no puede exceder 100 caracteres')
     .required('La descripción es obligatoria'),
 
   tipoEventoId: Yup.string()

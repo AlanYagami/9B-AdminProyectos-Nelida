@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { generarPDF } from './../utils/pdfUtils';
+import { validarDisponibilidad } from '../validations/validaciones';
 import api from './../services/api';
+import Swal from 'sweetalert2';
 
 const CronogramaPage = () => {
   const [params] = useSearchParams();
@@ -18,6 +20,16 @@ const CronogramaPage = () => {
         const eventoRes = await api.publico.getEventosPublicosById(eventoId);
         const evento = eventoRes.data;
 
+        // VALIDACIÓN
+        const resultado = validarDisponibilidad(evento);
+        if (!resultado.valido) {
+          if (resultado.alerta) {
+            Swal.fire(resultado.alerta); // mostrar alerta si hay
+          }
+          setMensaje('El PDF no está disponible en este momento.');
+          return; // detener ejecución
+        }
+
         const bloquesRes = await api.publico.getBloquesPublicosByEvento(eventoId);
         const bloques = bloquesRes.data;
 
@@ -25,55 +37,6 @@ const CronogramaPage = () => {
         const tiposEvento = tiposResponse.data;
         const tipoEvento = tiposEvento.find(tipo => tipo.id === evento.tipoEventoId);
 
-        // Fecha y hora inicio del evento:
-        // Si hay bloques, tomamos la fecha y hora del primer bloque ordenado
-        // Si NO hay bloques, usamos evento.fechaInicio (suponiendo que incluye hora)
-        let fechaInicioEvento;
-
-        if (bloques.length > 0) {
-          const bloquesOrdenados = bloques.sort((a, b) => {
-            const fechaHoraA = new Date(`${a.fechaBloque}T${a.horaInicio}`);
-            const fechaHoraB = new Date(`${b.fechaBloque}T${b.horaInicio}`);
-            return fechaHoraA - fechaHoraB;
-          });
-          const primerBloque = bloquesOrdenados[0];
-          fechaInicioEvento = new Date(`${primerBloque.fechaBloque}T${primerBloque.horaInicio}`);
-        } else {
-          // Aquí asumimos que evento.fechaInicio tiene fecha y hora en ISO string o similar
-          fechaInicioEvento = new Date(evento.fechaInicio);
-        }
-
-        // Fecha fin del evento (ajustamos fin de día si solo tiene fecha)
-        let fechaFinEvento = new Date(evento.fechaFin);
-        if (
-          fechaFinEvento.getHours() === 0 &&
-          fechaFinEvento.getMinutes() === 0 &&
-          fechaFinEvento.getSeconds() === 0
-        ) {
-          fechaFinEvento.setHours(23, 59, 59, 999);
-        }
-
-        const ahora = new Date();
-        const dosHorasAntes = new Date(fechaInicioEvento.getTime() - 2 * 60 * 60 * 1000);
-
-        // Validaciones
-        if (ahora.toDateString() !== fechaInicioEvento.toDateString()) {
-          setMensaje('Solo puedes descargar el PDF el día del evento.');
-          return;
-        }
-
-        if (ahora < dosHorasAntes) {
-          const horasFaltantes = Math.ceil((dosHorasAntes - ahora) / (1000 * 60 * 60));
-          setMensaje(`Puedes descargar el PDF solo 2 horas antes del inicio del evento. Faltan aproximadamente ${horasFaltantes} hora(s).`);
-          return;
-        }
-
-        if (ahora > fechaFinEvento) {
-          setMensaje('El evento ya ha finalizado. No se puede descargar el PDF.');
-          return;
-        }
-
-        // Formatear bloques para PDF (si no hay bloques, formatted quedará vacío y es válido)
         const formatted = {};
         bloques.forEach(b => {
           const fechaBloque = new Date(b.fechaBloque);

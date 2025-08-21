@@ -125,33 +125,41 @@ function EventList() {
 
   const columns = [
     {
-        name: "Nombre",
-        selector: row => row.nombreEvento || "—",
-        sortable: true,
+      name: "Nombre",
+      selector: row => row.nombreEvento || "—",
+      sortable: true,
+      minWidth: '150px',
+      wrap: true,
     },
+    /*
     {
         name: "Descripción",
         selector: row => row.descripcionEvento || "—",
         sortable: true,
     },
+    */
     {
-        name: "Tipo de Evento",
-        selector: row => row.tipoEvento?.tipoEvento || "—",
-        sortable: true,
+      name: "Tipo de Evento",
+      selector: row => row.tipoEvento?.tipoEvento || "—",
+      sortable: true,
+      maxWidth: '150px',
     },
     {
-        name: "Duración en horas",
-        selector: row => row.numHoras ?? "—",
-        sortable: true,
+      name: "Duración (hr)",
+      selector: row => row.numHoras ?? "—",
+      sortable: true,
+      maxWidth: '130px',
     },
     {
-        name: "Hora Inicio",
-        selector: row => {
-            if (!row.horaInicio) return "--:--";
-            const hora = new Date(`1970-01-01T${row.horaInicio}`);
-            return hora.toLocaleTimeString("es-ES", { hour: '2-digit', minute: '2-digit' });
-        }
+      name: "Hora Inicio",
+      selector: row => {
+        if (!row.horaInicio) return "--:--";
+        const hora = new Date(`1970-01-01T${row.horaInicio}`);
+        return hora.toLocaleTimeString("es-ES", { hour: '2-digit', minute: '2-digit' });
+      },
+      maxWidth: '130px',
     },
+    /*
     {
         name: "Hora Fin",
         selector: row => {
@@ -160,6 +168,7 @@ function EventList() {
             return hora.toLocaleTimeString("es-ES", { hour: '2-digit', minute: '2-digit' });
         }
     },
+    */
     {
       name: "Fecha Inicio",
       selector: row => {
@@ -167,12 +176,14 @@ function EventList() {
         const fecha = new Date(row.fechaInicio);
         return fecha.toLocaleDateString("es-ES", {
           day: "2-digit",
-          month: "long",
+          month: "short",
           year: "numeric",
         });
       },
       sortable: true,
+      minWidth: '130px',
     },
+    /*
     {
       name: "Fecha Fin",
       selector: row => {
@@ -180,21 +191,27 @@ function EventList() {
         const fecha = new Date(row.fechaFin);
         return fecha.toLocaleDateString("es-ES", {
           day: "2-digit",
-          month: "long",
+          month: "short",
           year: "numeric",
         });
       },
       sortable: true,
+      minWidth: '130px',
+    },
+    */
+    {
+      name: "Ubicación",
+      selector: row => row.ubicacion || "—",
+      sortable: true,
+      minWidth: '150px',
+      wrap: true,
     },
     {
-        name: "Ubicación",
-        selector: row => row.ubicacion || "—",
-        sortable: true,
-    },
-    {
-        name: "Responsable",
-        selector: row => row.responsable || "—",
-        sortable: true,
+      name: "Responsable",
+      selector: row => row.responsable || "—",
+      sortable: true,
+      minWidth: '150px',
+      wrap: true,
     },
     {
       name: "Acciones",
@@ -238,18 +255,17 @@ function EventList() {
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
+      maxWidth: '250px',
     },
   ];
 
   const filteredData = eventos.filter(item =>
     (item.nombreEvento || "").toLowerCase().includes(search.toLowerCase()) ||
-    (item.descripcionEvento || "").toLowerCase().includes(search.toLowerCase()) ||
     (item.tipoEvento?.tipoEvento || "").toLowerCase().includes(search.toLowerCase()) ||
     (item.ubicacion || "").toLowerCase().includes(search.toLowerCase()) ||
-    (item.responsable || "").toLowerCase().includes(search.toLowerCase()) ||
-    (item.fechaInicio || "").includes(search) ||
-    (item.fechaFin || "").includes(search)
+    (item.responsable || "").toLowerCase().includes(search.toLowerCase())
   );
+
 
   const customStyles = {
     table: { style: { backgroundColor: "#2a2a2e", color: "#e0e0e0" } },
